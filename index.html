@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Импульс 360° — разборка прототипа</title>
+<meta name="description" content="Ставки, рынки предсказаний и казино в одной ленте по модели TikTok. Разбор 12 механик: гипотезы, рисерч, живое демо, метрики и подводные камни.">
+<meta name="theme-color" content="#f6f8fc">
+<link rel="canonical" href="https://cosmiksoul.github.io/igaming-impulse/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Импульс">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://cosmiksoul.github.io/igaming-impulse/">
+<meta property="og:title" content="Импульс — прототип iGaming-продукта для поколения соцсетей">
+<meta property="og:description" content="Ставки, рынки предсказаний и казино в одной ленте по модели TikTok. Разбор 12 механик: гипотезы, рисерч, живое демо, метрики и подводные камни.">
+<meta property="og:image" content="https://cosmiksoul.github.io/igaming-impulse/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Импульс: ставки, прогнозы и казино в одной ленте — превью прототипа">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Импульс — прототип iGaming-продукта для поколения соцсетей">
+<meta name="twitter:description" content="Ставки, рынки предсказаний и казино в одной ленте по модели TikTok. Разбор 12 механик: гипотезы, рисерч, живое демо, метрики и подводные камни.">
+<meta name="twitter:image" content="https://cosmiksoul.github.io/igaming-impulse/og-image.png">
+<meta name="twitter:image:alt" content="Импульс: ставки, прогнозы и казино в одной ленте — превью прототипа">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080f; --bg2:#0b0d17;
+  --surface:#10131f; --surface2:#171b2c; --surface3:#202741;
+  --line:rgba(154,170,207,.14); --line2:rgba(154,170,207,.26);
+  --text:#eef1f8; --muted:#8e97ad; --faint:#5b6378;
+  --lime:#c6ff4a; --violet:#b67cff; --cyan:#7df9ff; --rose:#ff5ec7; --amber:#ffd166; --green:#3fe08b; --red:#ff5e7d;
+  /* валидированная палитра для графических меток (тёмная поверхность) */
+  --ch1:#7d9e2e; --ch2:#d44f96; --ch3:#9168e2; --ch4:#2f9fc7; --ch5:#b8892c;
+  --chrome:linear-gradient(180deg,#fff 0%,#d4d9ea 28%,#8b93ad 48%,#f0f3ff 54%,#a9b1c9 76%,#f7f9ff 100%);
+  --holo:linear-gradient(120deg,#7df9ff,#b67cff 30%,#ff5ec7 55%,#ffd166 78%,#c6ff4a);
+  --holo-soft:linear-gradient(135deg,rgba(125,249,255,.4),rgba(182,124,255,.4) 35%,rgba(255,94,199,.35) 65%,rgba(198,255,74,.4));
+  --font:'Manrope',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --disp:'Unbounded','Manrope',sans-serif;
+  --r:16px; --r-lg:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(1100px 600px at 85% -10%,rgba(182,124,255,.12),transparent 60%),
+    radial-gradient(900px 500px at 0% 100%,rgba(125,249,255,.07),transparent 55%),var(--bg);
+  color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;
+  min-height:100vh;
+}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:200;opacity:.04;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+a{color:var(--cyan)}
+b,strong{font-weight:800}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+/* ---------- header ---------- */
+header{padding:34px 0 10px}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.logo{font-family:var(--disp);font-weight:900;font-size:26px;background:var(--chrome);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.logo i{background:linear-gradient(135deg,var(--lime),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;font-style:normal}
+.brand .b360{font-family:var(--disp);font-size:13px;color:var(--lime);letter-spacing:2px}
+.lede{color:var(--muted);max-width:760px;margin-top:10px;font-size:15.5px}
+.lede b{color:var(--text)}
+/* ---------- tabs ---------- */
+.tabs{position:sticky;top:0;z-index:90;background:rgba(7,8,15,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);margin-top:22px}
+.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{border:none;background:none;color:var(--muted);font-family:var(--font);font-weight:800;font-size:13.5px;
+  padding:15px 16px 13px;cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;letter-spacing:.2px}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--lime);border-bottom-color:var(--lime)}
+.tab .n{display:inline-block;margin-left:7px;font-size:10.5px;background:var(--surface3);border-radius:8px;padding:1px 7px;color:var(--muted)}
+/* ---------- panes ---------- */
+.pane{display:none;padding:30px 0 70px}
+.pane.on{display:block}
+h2{font-family:var(--disp);font-size:21px;font-weight:900;margin:8px 0 8px;letter-spacing:-.3px}
+h2 em{font-style:normal;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);max-width:820px;margin-bottom:24px}
+h3{font-size:16px;font-weight:800;margin:26px 0 10px}
+h3::before{content:"✦ ";color:var(--cyan);font-size:11px;vertical-align:2px}
+p{margin:10px 0;max-width:860px}
+/* ---------- MAP (hub) ---------- */
+.hub{display:grid;grid-template-columns:minmax(330px,420px) 1fr;gap:22px;align-items:start}
+@media(max-width:900px){.hub{grid-template-columns:1fr}}
+.grouplbl{grid-column:1/-1;font-size:10.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin:10px 0 2px}
+.grouplbl:first-child{margin-top:0}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mchip{position:relative;text-align:left;border:1px solid transparent;border-radius:var(--r);padding:13px 13px 11px;cursor:pointer;
+  background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--holo-soft) border-box;
+  font-family:var(--font);color:var(--text);transition:transform .14s, box-shadow .14s}
+.mchip:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.mchip.on{background:linear-gradient(var(--surface3),var(--surface2)) padding-box,var(--holo) border-box;
+  box-shadow:0 10px 34px rgba(182,124,255,.22)}
+.mchip .mi{font-size:21px}
+.mchip .mn{font-weight:800;font-size:13px;margin-top:6px;line-height:1.25}
+.mchip .md{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+.mchip .heat{position:absolute;top:10px;right:11px;font-size:9px;font-weight:800;letter-spacing:.6px;
+  padding:2.5px 7px;border-radius:999px}
+.heat.h1{background:rgba(255,94,125,.16);color:#ff8aa6}
+.heat.h2{background:rgba(255,209,102,.14);color:var(--amber)}
+.heat.h3{background:rgba(125,249,255,.12);color:var(--cyan)}
+/* detail panel */
+.detail{position:sticky;top:76px;border-radius:var(--r-lg);border:1px solid transparent;
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box,var(--holo-soft) border-box;
+  padding:24px 26px;min-height:420px;box-shadow:0 18px 60px rgba(0,0,0,.45)}
+@media(max-width:900px){.detail{position:static}}
+.d-ico{font-size:30px}
+.d-name{font-family:var(--disp);font-size:19px;font-weight:900;margin:8px 0 2px}
+.d-sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.d-sec{margin-top:18px}
+.d-k{font-size:10.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.d-k::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--klr,var(--lime))}
+.d-body{font-size:13.5px;color:#cfd6e6;line-height:1.6}
+.d-body b{color:var(--text)}
+.mtags{display:flex;flex-wrap:wrap;gap:7px}
+.mtag{font-size:11px;font-weight:800;border-radius:999px;padding:5px 11px;border:1px solid var(--line2);background:var(--surface2)}
+.mtag.up{color:var(--green);border-color:rgba(63,224,139,.4)}
+.mtag.guard{color:var(--cyan);border-color:rgba(125,249,255,.35)}
+.demo{border-radius:var(--r);background:var(--surface);border:1px solid var(--line);padding:16px;margin-top:8px}
+.demo .dm-note{font-size:10.5px;color:var(--faint);margin-top:9px;line-height:1.4}
+/* term tooltip */
+.term{border-bottom:1px dashed var(--violet);cursor:help;position:relative}
+#tip{position:fixed;z-index:300;max-width:300px;background:var(--surface3);border:1px solid var(--line2);
+  border-radius:12px;padding:11px 13px;font-size:12.5px;line-height:1.5;box-shadow:0 16px 50px rgba(0,0,0,.6);display:none}
+#tip b{color:var(--violet)}
+sup a{color:var(--faint);text-decoration:none;font-weight:700;font-size:10px}
+sup a:hover{color:var(--cyan)}
+/* ---------- demo widgets ---------- */
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.dbtn{border:1px solid var(--line2);background:var(--surface2);color:var(--text);border-radius:999px;
+  padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s}
+.dbtn:hover{border-color:var(--lime)}
+.dbtn.neg:hover{border-color:var(--red)}
+.dbtn:disabled{opacity:.45}
+.playb{border:none;border-radius:12px;padding:11px 18px;font-weight:800;font-size:13px;cursor:pointer;
+  color:#0c1200;background:linear-gradient(180deg,#e2ff8a,#b7f03a);font-family:var(--font)}
+.wbars{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+.wbar{display:grid;grid-template-columns:86px 1fr 34px;align-items:center;gap:10px;font-size:12px}
+.wbar .lab{color:var(--muted);font-weight:700;text-align:right}
+.wbar .tr{height:13px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+.wbar .tr i{display:block;height:100%;border-radius:4px;transition:width .4s}
+.wbar .val{font-weight:800;color:var(--muted);font-size:11px}
+.dots10{display:flex;gap:5px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.dots10 span{width:17px;height:17px;border-radius:5px;transition:background .3s}
+.dots10 .cap{width:auto;height:auto;font-size:11px;color:var(--faint);font-weight:700;margin-right:4px}
+.sld{width:100%;accent-color:var(--cyan);margin:10px 0 4px}
+.kv{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.kv div{flex:1;min-width:90px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.kv b{display:block;font-size:17px;font-family:var(--disp)}
+.kv span{font-size:10px;color:var(--muted);font-weight:700}
+/* mini cascade */
+.mgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:10px}
+.mcell{aspect-ratio:1;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:16px}
+.mcell.pop{animation:mpop .4s forwards}
+@keyframes mpop{50%{transform:scale(1.25);filter:brightness(1.6)}100%{transform:scale(0);opacity:0}}
+.mcell.fall{animation:mfall .3s}
+@keyframes mfall{from{transform:translateY(-16px);opacity:0}}
+/* mini position */
+.posdemo{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;font-size:13px}
+.posdemo b.pr{font-family:var(--disp);min-width:74px;text-align:center}
+/* ---------- METRICS tab ---------- */
+.legendrow{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);margin:14px 0 10px}
+.legendrow .sq{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+.mx-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg2)}
+table.mx{border-collapse:collapse;width:100%;min-width:860px;font-size:12px}
+.mx th{font-size:10.5px;font-weight:800;letter-spacing:.4px;color:var(--muted);padding:12px 8px;border-bottom:1px solid var(--line2);text-align:center}
+.mx th:first-child{text-align:left;padding-left:16px;min-width:210px}
+.mx td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:center}
+.mx td:first-child{text-align:left;padding-left:16px;font-weight:700;cursor:pointer;white-space:nowrap}
+.mx td:first-child:hover{color:var(--lime)}
+.mx tr:last-child td{border-bottom:none}
+.mx .cell{display:inline-block;width:22px;height:22px;border-radius:7px;cursor:default}
+.mx tr.hl td{background:rgba(198,255,74,.05)}
+/* funnel */
+.funnel{display:flex;flex-direction:column;gap:9px;max-width:760px;margin-top:14px}
+.fstage{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+.fstage .fl{font-size:12px;font-weight:800;text-align:right;color:var(--muted)}
+.fstage .fb{height:40px;border-radius:10px;display:flex;align-items:center;padding:0 14px;
+  font-size:12px;font-weight:800;color:#0b0d14;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
+.fstage .fb:hover{transform:translateX(4px)}
+.fstage .fb::after{content:"";position:absolute;left:0;right:0;top:0;height:40%;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent)}
+.fmechs{font-size:12px;color:var(--muted);min-height:40px;padding:10px 2px 2px;line-height:1.7}
+.fmechs b{color:var(--text)}
+/* ---------- TECH / PROCESS ---------- */
+.arch{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.alayer{border:1px solid var(--line);border-radius:var(--r);background:var(--bg2);padding:13px 16px}
+.alayer .al-t{font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.ablocks{display:flex;gap:8px;flex-wrap:wrap}
+.ab{border-radius:11px;padding:9px 13px;font-size:12.5px;font-weight:700;border:1px solid var(--line2);background:var(--surface2)}
+.ab small{display:block;font-weight:600;font-size:10.5px;color:var(--muted);margin-top:2px}
+.ab.k1{box-shadow:inset 3px 0 0 var(--ch1)}.ab.k2{box-shadow:inset 3px 0 0 var(--ch2)}
+.ab.k3{box-shadow:inset 3px 0 0 var(--ch3)}.ab.k4{box-shadow:inset 3px 0 0 var(--ch4)}.ab.k5{box-shadow:inset 3px 0 0 var(--ch5)}
+.adown{text-align:center;color:var(--faint);font-size:14px;margin:-2px 0}
+.cards3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.pcard{border:1px solid var(--line);border-radius:var(--r);background:var(--bg2);padding:17px}
+.pcard h4{font-size:14px;font-weight:800;display:flex;gap:9px;align-items:center}
+.pcard .own{font-size:11px;color:var(--violet);font-weight:800;margin:6px 0 8px}
+.pcard p{font-size:12.5px;color:#c3cadc;margin:0 0 8px}
+.pcard .risk{font-size:11.5px;color:var(--amber);border-top:1px dashed var(--line);padding-top:8px}
+table.ev{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:10px}
+.ev th{text-align:left;color:var(--muted);font-size:11px;letter-spacing:.4px;padding:8px 10px;border-bottom:1px solid var(--line2)}
+.ev td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.ev code{background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:1.5px 7px;font-size:11.5px;color:var(--lime)}
+/* ---------- PROTO tab ---------- */
+.proto{display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:start}
+@media(max-width:900px){.proto{grid-template-columns:1fr}}
+.phcol{position:sticky;top:66px}
+@media(max-width:900px){.phcol{position:static}}
+.phoneframe{width:402px;height:854px;border-radius:44px;overflow:hidden;transform-origin:top left;
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 40px 110px rgba(0,0,0,.7),0 0 0 9px #000;margin:0 auto}
+.phoneframe iframe{width:100%;height:100%;border:none;background:#07090f}
+.checks{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg2);padding:20px 22px}
+.checks label{display:flex;gap:11px;align-items:flex-start;padding:8px 0;font-size:13.5px;cursor:pointer;border-bottom:1px dashed var(--line)}
+.checks label:last-of-type{border:none}
+.checks input{accent-color:var(--lime);margin-top:3px;flex:none}
+.checks label span b{color:var(--lime)}
+/* ---------- SOURCES ---------- */
+#sources{margin-top:0}
+#srcList{margin:14px 0 60px 20px;display:grid;gap:7px;font-size:13px;max-width:860px}
+#srcList li{color:var(--muted)}
+footer{color:var(--faint);font-size:12px;padding:0 0 40px}
+.note{border:1px solid rgba(125,249,255,.3);background:rgba(125,249,255,.06);border-radius:var(--r);
+  padding:13px 16px;font-size:13px;max-width:860px;margin:16px 0}
+/* ---------- STORY: манифест, метро, секции ---------- */
+.mancards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px;margin:18px 0 6px}
+.manc{border:1px solid transparent;border-radius:14px;padding:13px 15px;
+  background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--holo-soft) border-box}
+.manc b{display:block;font-size:12.5px;font-weight:800;margin-bottom:6px}
+.manc span{font-size:12px;color:var(--muted);line-height:1.5;display:block}
+.manc span .term{display:inline}
+.metrowrap{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg2);padding:18px 16px 12px;margin:22px 0 10px}
+.metrohead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.metrohead .mt{font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.glegend{display:flex;gap:13px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.glegend b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.metro{position:relative;display:flex;gap:4px;overflow-x:auto;padding:16px 4px 6px;scrollbar-width:none}
+.metro::-webkit-scrollbar{display:none}
+.metro::before{content:"";position:absolute;left:14px;right:14px;top:34px;height:3px;border-radius:2px;
+  background:linear-gradient(90deg,var(--ch1),var(--ch1) 22%,var(--ch2) 28%,var(--ch2) 47%,var(--ch3) 53%,var(--ch3) 72%,var(--ch4) 78%,var(--ch4) 89%,var(--ch5) 95%);opacity:.6}
+.stop{flex:1 0 84px;min-width:84px;background:none;border:none;cursor:pointer;font-family:var(--font);color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;gap:8px;padding:0}
+.stop i{font-style:normal;width:37px;height:37px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:12px;background:var(--surface2);border:2.5px solid var(--gcol);color:var(--text);
+  position:relative;z-index:1;transition:all .18s;font-family:var(--disp)}
+.stop span{font-size:10.5px;font-weight:700;line-height:1.25;text-align:center}
+.stop:hover i{transform:scale(1.14)}
+.stop.on i{background:var(--gcol);color:#0b0d14;box-shadow:0 0 20px var(--gcol)}
+.stop.on span{color:var(--text)}
+.mech{border-top:1px solid var(--line);padding:40px 0 28px;scroll-margin-top:64px}
+.mhead{display:flex;gap:16px;align-items:center;margin-bottom:14px}
+.mnum{font-family:var(--disp);font-weight:900;font-size:32px;background:var(--chrome);
+  -webkit-background-clip:text;background-clip:text;color:transparent;min-width:56px;line-height:1}
+.mtitle{font-family:var(--disp);font-size:19px;font-weight:900;margin:0;letter-spacing:-.2px}
+.msub{color:var(--muted);font-size:12px;margin-top:4px}
+.origin{margin:14px 0 0}
+.hypo{border:1px solid rgba(198,255,74,.35);border-left:4px solid var(--lime);background:rgba(198,255,74,.06);
+  border-radius:12px;padding:14px 18px;margin:18px 0}
+.hypk{font-size:10.5px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--lime);margin-bottom:6px}
+.duo{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin:20px 0 18px;align-items:start}
+@media(max-width:880px){.duo{grid-template-columns:1fr}}
+.demobadge{font-size:9.5px;font-weight:800;letter-spacing:1.6px;color:var(--lime);text-transform:uppercase;margin-bottom:10px}
+.trio{display:grid;grid-template-columns:1.1fr .8fr 1.1fr;gap:20px;margin-top:4px}
+@media(max-width:880px){.trio{grid-template-columns:1fr}}
+.d-body.sm{font-size:12.5px}
+.bigsec{border-top:1px solid var(--line);padding-top:36px;margin-top:40px}
+#backtop{position:fixed;right:22px;bottom:22px;z-index:95;border:1px solid var(--line2);background:var(--surface2);
+  color:var(--text);border-radius:999px;padding:11px 17px;font-weight:800;font-size:12px;cursor:pointer;display:none;
+  font-family:var(--font);box-shadow:0 12px 34px rgba(0,0,0,.55)}
+#backtop:hover{border-color:var(--lime)}
+.mech{border-top:none!important}
+.mech::before,.mech::after{display:none!important}
+.dbtn.sel{border-color:var(--blue);color:var(--blue)}
+.pmline{font-size:11px;font-weight:700;margin-top:9px;color:var(--muted)}
+.dsvg{width:100%;height:120px;border:1px solid var(--line);border-radius:3px;margin-top:10px;
+  background:linear-gradient(rgba(43,92,255,.06) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(43,92,255,.06) 1px,transparent 1px),#fff;background-size:12px 12px}
+/* ================================================================
+   BLUEPRINT SKIN · светлая миллиметровка, синяя тушь, моно-разметка
+   ================================================================ */
+:root{
+  --bg:#f4f7fb; --bg2:#ffffff; --surface:#ffffff; --surface2:#eef3fa; --surface3:#e2e9f5;
+  --line:rgba(27,52,110,.22); --line2:rgba(27,52,110,.42);
+  --text:#15223f; --muted:#51618a; --faint:#8898ba;
+  --blue:#2b5cff; --ink:#15223f;
+  --lime:#2b5cff; --violet:#7a3fd1; --cyan:#0f8f7a; --rose:#e8442e; --amber:#b07a0e; --green:#1a9e63; --red:#d93851;
+  --ch1:#2b5cff; --ch2:#e8442e; --ch3:#7a3fd1; --ch4:#0f8f7a; --ch5:#b07a0e;
+  --chrome:linear-gradient(180deg,#223457,#15223f);
+  --holo:linear-gradient(120deg,#2b5cff,#2b5cff);
+  --holo-soft:linear-gradient(135deg,rgba(43,92,255,.5),rgba(43,92,255,.3));
+  --disp:'IBM Plex Mono','Manrope',monospace;
+  --r:4px; --r-lg:6px;
+}
+body{color:var(--text);background:
+  linear-gradient(rgba(43,92,255,.045) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(43,92,255,.045) 1px,transparent 1px),
+  linear-gradient(rgba(43,92,255,.09) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(43,92,255,.09) 1px,transparent 1px),#f6f8fc;
+  background-size:8px 8px,8px 8px,40px 40px,40px 40px}
+.grain{display:none}
+a{color:var(--blue)}
+/* типографика: чертёжные заголовки */
+h2,.mtitle{letter-spacing:.2px}
+h2 em,.logo,.mnum{background:none;-webkit-background-clip:initial;background-clip:initial;
+  color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.logo{font-size:22px;letter-spacing:2px}
+.logo i{background:none;-webkit-background-clip:initial;background-clip:initial;color:var(--blue);-webkit-text-fill-color:var(--blue)}
+.brand .b360{color:var(--blue)}
+.lede b{color:var(--ink)}
+/* штамп чертежа */
+.stamp-tb{display:flex;flex-wrap:wrap;border:1.5px solid var(--blue);background:#fff;margin-top:20px;max-width:720px}
+.stamp-tb div{padding:7px 14px 8px;border-right:1px solid var(--line);flex:1;min-width:104px}
+.stamp-tb div:last-child{border-right:none}
+.stamp-tb small{display:block;font-family:var(--disp);font-size:8.5px;letter-spacing:1.2px;color:var(--faint);text-transform:uppercase}
+.stamp-tb b{font-family:var(--disp);font-size:12px;color:var(--ink);font-weight:700}
+/* вкладки */
+.tabs{background:rgba(246,248,252,.94);border-bottom:1.5px solid var(--blue)}
+.tab{color:var(--muted)}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.tab .n{background:#e8eefb;color:var(--muted)}
+/* манифест и панели */
+.manc,.demo,.pcard,.alayer,.mx-wrap,.metrowrap,.checks,.note,.kv div,.posdemo,.ev code,.hypo{border-radius:3px}
+.manc{background:#fff;border:1.5px solid var(--line2)}
+.metrowrap,.mx-wrap{background:#fff;border:1.5px solid var(--blue)}
+.demo{background:#fff;border:1.5px solid var(--line2);box-shadow:4px 4px 0 rgba(43,92,255,.1)}
+.demobadge{color:var(--blue)}
+.note{background:#fff;border:1.5px dashed var(--line2)}
+.pcard,.alayer,.checks{background:#fff;border:1px solid var(--line2);box-shadow:none}
+.ab{background:#fbfcff;border-color:var(--line);border-radius:3px}
+.card,.panel{box-shadow:none}
+/* секции-модули: рамка с перекрестиями */
+.mech{border-top:1.5px solid var(--blue)}
+.mech::before,.mech::after{content:"+";position:absolute;top:-10px;font:700 13px var(--disp);color:var(--blue)}
+.mech{position:relative}
+.mech::before{left:-1px}
+.mech::after{right:-1px}
+.mnum{border:1.5px solid var(--blue);color:var(--blue);-webkit-text-fill-color:var(--blue);
+  font-size:19px;min-width:auto;padding:6px 11px;border-radius:3px;line-height:1}
+.msub{font-family:var(--disp);font-size:10.5px;letter-spacing:.6px;text-transform:uppercase}
+.heat.h1,.heat.h2,.heat.h3{font-family:var(--disp)}
+.hypo{border:1.5px dashed var(--blue);border-left:4px solid var(--blue);background:rgba(43,92,255,.05)}
+.hypk{color:var(--blue)}
+.d-k{font-family:var(--disp)}
+.d-k::before{border-radius:1px}
+.mtag{background:#fff;border-color:var(--line2);border-radius:3px}
+/* контролы демо */
+.playb{background:var(--blue);color:#fff;border-radius:3px}
+a.playb{text-decoration:none;text-align:center}
+.dbtn{background:#fff;border-color:var(--line2);border-radius:3px}
+.dbtn:hover{border-color:var(--blue);color:var(--blue)}
+.dbtn.neg:hover{border-color:var(--rose);color:var(--rose)}
+.sld{accent-color:var(--blue)}
+.kv b{font-size:16px}
+.wbar .tr{background:#e7edf8;border-radius:2px}
+.wbar .tr i{border-radius:2px}
+.dots10 span{border-radius:2px}
+.mgrid .mcell,.mcell{background:#eef3fa;border:1px solid var(--line);border-radius:3px}
+/* метро */
+.metro::before{opacity:.9;height:2px;top:33px}
+.metrohead .mt{color:var(--blue)}
+.stop i{background:#fff;border-width:2px;color:var(--ink);box-shadow:none}
+.stop.on i{color:#fff;box-shadow:none}
+.stop span{font-family:var(--disp);font-size:9.5px;letter-spacing:.2px;text-transform:uppercase}
+/* матрица и воронка */
+.mx tr.hl td{background:rgba(43,92,255,.06)}
+.fstage .fb{color:#fff;border-radius:3px;font-family:var(--disp)}
+.fstage .fb::after{display:none}
+.fstage .fl{font-family:var(--disp);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px}
+/* процессы */
+.pcard .risk{color:#8a5f0c}
+/* прототип */
+.phoneframe{border:1px solid #0b0d14;box-shadow:0 22px 54px rgba(21,34,63,.3),0 0 0 9px #0b0d14}
+.checks input{accent-color:var(--blue)}
+.checks label span b{color:var(--blue)}
+/* подсказки и ссылки-термины */
+.term{border-bottom:1px dashed var(--blue)}
+#tip{background:#fff;border:1.5px solid var(--blue);box-shadow:6px 6px 0 rgba(43,92,255,.12);border-radius:3px}
+#tip b{color:var(--blue)}
+sup a{color:var(--faint)}
+sup a:hover{color:var(--blue)}
+#backtop{background:#fff;border:1.5px solid var(--blue);color:var(--blue);border-radius:3px}
+.d-body{color:#2e3e63}
+.d-body b{color:var(--ink)}
+.pcard p{color:#3a4a70}
+.fmechs{color:#51618a}
+.cmt .ctxt{color:#2e3e63}
+
+#srcList li{color:var(--muted)}
+footer{color:var(--faint)}
+
+/* ---------- врезки ---------- */
+.inset{position:relative;border:1.5px solid var(--blue);border-radius:10px;background:var(--surface);box-shadow:8px 8px 0 rgba(43,92,255,.08);padding:26px 26px 20px;margin:40px 0}
+.inset .ik{position:absolute;top:-11px;left:16px;background:var(--blue);color:#fff;font-family:var(--disp);font-size:10px;font-weight:700;letter-spacing:1.5px;padding:4px 10px;border-radius:5px;text-transform:uppercase}
+.inset h3{font-family:var(--disp);font-size:19px;margin:2px 0 10px;letter-spacing:.3px}
+.schemerow{display:flex;gap:6px;align-items:stretch;margin:16px 0 6px}
+.snode{flex:1;min-width:0;border:1.5px solid var(--c,var(--blue));border-radius:10px;padding:11px 9px;text-align:center;background:var(--surface)}
+.snode .si{font-size:19px}
+.snode b{display:block;font-family:var(--disp);font-size:10.5px;letter-spacing:.7px;margin-top:5px}
+.snode p{font-size:10.5px;color:var(--muted);margin:5px 0 0;line-height:1.45}
+.sarr{display:flex;flex-direction:column;justify-content:center;align-items:center;flex:0 0 auto;font-size:8.5px;color:var(--muted);gap:2px;max-width:64px;text-align:center}
+.sarr b{font-size:15px;color:var(--text)}
+.sloop{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);border-top:1px dashed var(--line2);padding-top:10px;margin-top:12px}
+.icallout{border:1px dashed var(--line2);border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.55;margin-top:12px;background:var(--surface2)}
+.pathsteps{display:flex;gap:6px;align-items:stretch;margin:14px 0 4px}
+.pstep{flex:1;min-width:0;border:1px solid var(--line2);border-radius:8px;padding:8px 9px;background:var(--surface2)}
+.pstep b{display:block;font-family:var(--disp);font-size:9.5px;letter-spacing:.6px}
+.pstep span{font-size:10px;color:var(--muted);line-height:1.4;display:block;margin-top:3px}
+.parr{display:flex;align-items:center;flex:0 0 auto;color:var(--muted);font-size:13px}
+.pathtbl{width:100%;border-collapse:collapse;font-size:12px;margin:16px 0 4px}
+.pathtbl th{font-family:var(--disp);font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1.5px solid var(--blue)}
+.pathtbl td{padding:9px 10px;border-bottom:1px dashed var(--line2);vertical-align:top;line-height:1.45}
+.pathtbl td:first-child{font-family:var(--disp);font-weight:700;white-space:nowrap}
+@media(max-width:760px){.pathsteps{flex-direction:column}.parr{display:none}}
+@media(max-width:760px){.schemerow{flex-direction:column}.sarr{flex-direction:row;gap:6px}.sarr b{display:inline-block;transform:rotate(90deg)}}
+.tldr{margin-top:14px;border:1.5px solid #2b5cff;border-radius:12px;padding:14px 18px;font-size:14px;line-height:1.6;background:rgba(43,92,255,.05)}
+.tldr b{color:#1c3db0}
+.pitfalls{display:flex;flex-direction:column;gap:10px;max-width:940px}
+.pitfall{border:1px dashed var(--line2);border-left:3px solid #e8442e;border-radius:10px;padding:12px 16px;font-size:13.5px;line-height:1.6;background:rgba(232,68,46,.03)}
+.pitfall b{color:#b5311d}
+.herogrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"lede proto" "prin proto";gap:18px 44px;align-items:start;margin-top:4px}
+.hg-lede{grid-area:lede}
+.hg-prin{grid-area:prin}
+.heroproto{grid-area:proto}
+.hg-prin .mancards{grid-template-columns:repeat(2,minmax(0,1fr))}
+.heroproto{padding-top:16px}
+.hp-phone{width:300px;margin:0 auto;border:1.5px solid #2b5cff;border-radius:30px;box-shadow:10px 10px 0 rgba(43,92,255,.12);background:linear-gradient(rgba(43,92,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(43,92,255,.05) 1px,transparent 1px),#fff;background-size:8px 8px;padding:12px 10px 10px;box-sizing:border-box}
+.hp-top{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 10px;font-weight:800;font-size:13px;color:#15223f}
+.hp-logo i{color:#2b5cff;font-style:normal}
+.hp-pill{border:1px solid rgba(27,52,110,.3);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;color:#1c3db0;background:#fff}
+.hp-view{height:340px;overflow:hidden;border-radius:14px}
+.hp-track{animation:hpscroll 13s cubic-bezier(.65,0,.3,1) infinite}
+@keyframes hpscroll{0%,19%{transform:translateY(0)}25%,44%{transform:translateY(-346px)}50%,69%{transform:translateY(-692px)}75%,94%{transform:translateY(-1038px)}100%{transform:translateY(-1384px)}}
+.hp-card{height:340px;margin-bottom:6px;border:1px solid rgba(27,52,110,.25);border-radius:14px;background:#fff;padding:16px 14px;display:flex;flex-direction:column;justify-content:center;gap:16px;box-sizing:border-box}
+.hp-tag{font-size:9px;font-weight:800;letter-spacing:1.2px;color:#51618a}
+.hp-teams{display:flex;align-items:center;justify-content:space-around}
+.hp-tl{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px}
+.hp-teams b{color:#51618a;font-size:11px}
+.hp-outs{display:flex;gap:6px}
+.hp-out{flex:1;text-align:center;border:1px solid rgba(27,52,110,.25);border-radius:9px;padding:9px 2px;font-size:9.5px;font-weight:700;color:#51618a;background:#fff}
+.hp-out b{display:block;font-size:15px;color:#15223f;margin-top:2px}
+.hp-pulse{animation:hpTap 3.4s infinite}
+@keyframes hpTap{0%,55%,100%{background:#fff;border-color:rgba(27,52,110,.25)}65%,82%{background:rgba(43,92,255,.12);border-color:#2b5cff}}
+.hp-q{font-size:14.5px;font-weight:800;line-height:1.35;color:#15223f;text-align:center}
+.hp-bar{height:6px;border-radius:3px;background:rgba(232,68,46,.25);overflow:hidden}
+.hp-bar i{display:block;height:100%;background:#1a9e63;border-radius:3px}
+.hp-yn{display:flex;gap:8px}
+.hp-yn span{flex:1;text-align:center;border-radius:9px;padding:10px 2px;font-size:11px;font-weight:800}
+.hp-yn .n{background:rgba(232,68,46,.08);color:#b5311d;border:1px solid rgba(232,68,46,.4)}
+.hp-yn .y{background:rgba(26,158,99,.1);color:#127a4b;border:1px solid rgba(26,158,99,.5)}
+.hp-pulse2{animation:hpTap2 3.4s infinite 1.2s}
+@keyframes hpTap2{0%,60%,100%{transform:scale(1)}70%{transform:scale(1.07)}84%{transform:scale(1)}}
+.hp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.hp-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:17px;background:#eef3fa;border:1px solid rgba(27,52,110,.15);border-radius:8px;font-style:normal}
+.hp-cell.pp{animation:hpPop 4.2s infinite}
+@keyframes hpPop{0%,58%,100%{transform:scale(1);opacity:1}66%{transform:scale(1.25);filter:brightness(1.35)}73%{transform:scale(0);opacity:0}76%{transform:scale(1);opacity:1}}
+.hp-btn{text-align:center;border-radius:10px;padding:10px;background:#2b5cff;color:#fff;font-weight:800;font-size:12px;box-shadow:3px 3px 0 rgba(43,92,255,.2)}
+.hp-big{font-family:var(--disp);font-weight:900;font-size:42px;color:#2b5cff;text-align:center}
+.hp-sub{font-size:12.5px;color:#51618a;text-align:center;margin-top:-8px}
+.hp-navdots{display:flex;gap:5px;justify-content:center;padding-top:9px}
+.hp-navdots i{width:5px;height:5px;border-radius:50%;background:rgba(27,52,110,.25)}
+.hp-navdots i.on{background:#2b5cff}
+.hp-cta{display:block;width:300px;max-width:100%;margin:16px auto 0;font-size:14px;padding:13px}
+@media(max-width:980px){.herogrid{grid-template-columns:1fr;grid-template-areas:"lede" "proto" "prin";gap:14px}.heroproto{padding-top:0}.hp-phone{display:none}.hp-cta{margin-top:2px}}
+.hero-disclaim{margin:30px 0 0;padding-top:14px;border-top:1px dashed var(--line2);font-size:11.5px;color:var(--faint);line-height:1.65;max-width:940px}
+.phwrap{margin:0 auto}
+.tochecks{display:none;width:100%;max-width:402px;margin:12px auto 0;font-size:14px;padding:12px}
+@media(max-width:900px){.tochecks{display:block}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<header class="wrap">
+<div class="brand"><span class="logo">ИМПУЛЬС<i>.</i></span><span class="b360">ПРОТОТИП IGAMING-ПРОДУКТА</span></div>
+<div class="herogrid">
+<div class="hg-lede">
+<p class="lede"><b>Прототип для молодой аудитории, выросшей в соцсетях:</b> без лобби на пять тысяч плиток, непонятных терминов
+  и традиционных, но чужеродных для неё механик. Главный приём — убрать трение везде, где это возможно:
+  замаскировать классические iGaming-механики под привычные паттерны из других сфер, а где получится — просто взять и адаптировать чужие успешные наработки, чтобы продукт затягивал, как соцсеть, и его хотелось открывать каждый день. Ниже — последовательный разбор 12 модулей:
+  продуктовая гипотеза, происхождение идеи, данные рисерча, живое демо, примерная реализация, метрики и подводные камни.</p>
+</div>
+<div class="hg-prin">
+<h2 style="margin-top:4px">Основные принципы проекта</h2>
+<div class="mancards">
+    <div class="manc"><b>Непохоже на казино</b><span>Ни бесконечного лобби, ни <span class="term" data-tip="<b>Роспись</b> — полный список маркетов (вариантов ставок) на событие: десятки строк с коэффициентами на каждый исход.">росписи</span> коэффициентов. Экраны собраны из паттернов соцсетей, игр и финтеха — продукт читается как привычное приложение, а не как сайт букмекера.</span></div>
+    <div class="manc"><b>Ноль трения</b><span>Любое ключевое действие — один жест: ставка тапом, прогноз свайпом, вход без регистрации и депозита. Всё, что требовало трёх экранов, переделано или выброшено.</span></div>
+    <div class="manc"><b>Затягивает как соцсеть</b><span>Лента учится на каждом действии, ежедневные ритуалы дают причину вернуться сегодня, а спор под событием держит дольше самого события.</span></div>
+    <div class="manc"><b>Прогресс вместо VIP-лестницы</b><span>Статус зарабатывается игрой: XP за любую активность, стрики, лиги, клубы и сезонный пропуск. Геймификация и соцслой дают причину вернуться — кэшбек за проигранное не даёт.</span></div>
+  </div>
+<div class="tldr"><b>Главная идея.</b> Прототип собирает спортбеттинг, рынки предсказаний и казино в одну обучающуюся ленту — каркас TikTok вместо лобби и росписи. Рисерч по аудитории 18–26 подтвердил обе входные гипотезы с поправкой: умирают не слоты и не ставки, а их классическая подача. Рядом с каждым крючком вовлечения — контур контроля: лимиты, пауза, честный <span class="term" data-tip="<b>P&L</b> (profit and loss) — денежный итог игрока: сколько поставлено и сколько вернулось. Индустрия обычно прячет суммарный результат — здесь он всегда на виду.">P&amp;L</span>.</div>
+</div>
+<aside class="heroproto">
+<div class="hp-phone">
+  <div class="hp-top"><span class="hp-logo">⚡импульс</span><span class="hp-pill">◈ 10 000</span></div>
+  <div class="hp-view"><div class="hp-track">
+<div class="hp-card">
+  <div class="hp-tag">⚽ ФУТБОЛ · ОДИН ТАП</div>
+  <div class="hp-teams"><span class="hp-tl" style="background:linear-gradient(135deg,#2563eb,#0ea5e9)">АТ</span><b>VS</b><span class="hp-tl" style="background:linear-gradient(135deg,#dc2626,#f97316)">ЦК</span></div>
+  <div class="hp-outs"><span class="hp-out hp-pulse">П1<b>46%</b></span><span class="hp-out">X<b>28%</b></span><span class="hp-out">П2<b>26%</b></span></div>
+</div>
+<div class="hp-card">
+  <div class="hp-tag">🔮 РЫНОК ПРЕДСКАЗАНИЙ · СВАЙП</div>
+  <div class="hp-q">Биткоин выше $150 000 к Новому году?</div>
+  <div class="hp-bar"><i style="width:41%"></i></div>
+  <div class="hp-yn"><span class="n">НЕТ · 59%</span><span class="y hp-pulse2">ДА · 41%</span></div>
+</div>
+<div class="hp-card">
+  <div class="hp-tag">🧃 КАСКАДНЫЙ СЛОТ · ПРЕВЬЮ</div>
+  <div class="hp-grid"><i class="hp-cell">🍬</i><i class="hp-cell">🍇</i><i class="hp-cell pp" style="animation-delay:.3s">🍒</i><i class="hp-cell">🍋</i><i class="hp-cell">💎</i><i class="hp-cell pp" style="animation-delay:1.1s">⭐</i><i class="hp-cell">🫐</i><i class="hp-cell">🍑</i><i class="hp-cell pp" style="animation-delay:1.9s">🍋</i><i class="hp-cell">🫐</i><i class="hp-cell">🍒</i><i class="hp-cell">💎</i><i class="hp-cell">⭐</i><i class="hp-cell pp" style="animation-delay:2.6s">🍇</i><i class="hp-cell">🍬</i><i class="hp-cell">🍑</i></div>
+  <div class="hp-btn">Играть · спин от ◈10</div>
+</div>
+<div class="hp-card">
+  <div class="hp-tag">🏆 ЗАНОС · СОЦДОКАЗАТЕЛЬСТВО</div>
+  <div class="hp-big">×36,4</div>
+  <div class="hp-sub">занос у <b>Lena</b> в Juice Rush</div>
+  <div class="hp-btn">Играть в Juice Rush</div>
+</div>
+<div class="hp-card">
+  <div class="hp-tag">⚽ ФУТБОЛ · ОДИН ТАП</div>
+  <div class="hp-teams"><span class="hp-tl" style="background:linear-gradient(135deg,#2563eb,#0ea5e9)">АТ</span><b>VS</b><span class="hp-tl" style="background:linear-gradient(135deg,#dc2626,#f97316)">ЦК</span></div>
+  <div class="hp-outs"><span class="hp-out hp-pulse">П1<b>46%</b></span><span class="hp-out">X<b>28%</b></span><span class="hp-out">П2<b>26%</b></span></div>
+</div>
+  </div></div>
+  <div class="hp-navdots"><i class="on"></i><i></i><i></i><i></i></div>
+</div>
+<a class="playb hp-cta" href="prototype.html" target="_blank" rel="noopener">Открыть живой прототип</a>
+</aside>
+</div>
+<p class="hero-disclaim">Учебный проект: прототип собран, чтобы проверить концепцию. Многие стороны реального оперирования iGaming-продукта — лицензии, платежи, антифрод, юрисдикции — здесь сознательно не учтены. Азартные игры связаны с финансовыми рисками. 18+</p>
+</header>
+
+<nav class="tabs"><div class="wrap">
+  <button class="tab on" data-pane="story">Разбор механик прототипа <span class="n">12</span></button>
+  <button class="tab" data-pane="proto">Живой прототип</button>
+</div></nav>
+
+<!-- ======================= STORY ======================= -->
+<section class="pane on" id="pane-story">
+  <div class="wrap">
+    <div class="metrowrap">
+      <div class="metrohead"><span class="mt">Схема продукта · 12 модулей · клик — глубокое погружение</span>
+        <div class="glegend" id="glegend"></div></div>
+      <div class="metro" id="metro"></div>
+    </div>
+    <p class="sub" style="margin:16px 0 0;font-size:13px">Каждый модуль разобран по одной схеме: гипотеза → происхождение идеи →
+    данные рисерча → живое демо → примерная реализация (эскиз возможного решения, не архитектурный документ) →
+    примерные метрики → процессы с подводными камнями.</p>
+    <div id="story"></div>
+  </div>
+  <div class="wrap bigsec" id="sec-metrics">
+  <h2>Метрики и данные: <em>как поймём, что это работает</em></h2>
+  <p class="sub">Северная звезда прототипа — <span class="term" data-tip="<b>CURR</b> (current user retention rate) — удержание «текущих» пользователей: доля активных в каждую из двух прошлых недель, кто вернулся снова. У Duolingo рост CURR на 21% объясняет основную часть роста DAU в 4,5 раза.">CURR</span>, как у Duolingo:
+  возвращаемость уже активных игроков. Деньги — следствие возвращаемости, поэтому <span class="term" data-tip="<b>NGR</b> (net gaming revenue) — выручка после бонусов и налогов; <b>GGR</b> — валовая: ставки минус выигрыши.">NGR</span> в матрице — не цель каждой механики, а итог системы.
+  Guardrail-метрики <span class="term" data-tip="Guardrail — «ограждающая» метрика: не растим её, а следим, чтобы не ухудшалась. Здесь это метрики ответственной игры: доля игроков у лимитов, жалобы, самоисключения.">(что это?)</span> держит RG-контур.</p>
+
+  <h3>Матрица «механика × метрика»</h3>
+  <div class="legendrow">
+    <span>Сила ожидаемого эффекта:</span>
+    <span><span class="sq" style="background:rgba(43,92,255,.16)"></span>косвенный</span>
+    <span><span class="sq" style="background:rgba(43,92,255,.45)"></span>заметный</span>
+    <span><span class="sq" style="background:#2b5cff"></span>ключевой</span>
+    <span style="color:var(--faint)">· клик по строке откроет механику · наведись на ячейку за пояснением</span>
+  </div>
+  <div class="mx-wrap"><table class="mx" id="mxTable"></table></div>
+
+  <h3>Воронка <span class="term" data-tip="<b>AARRR</b> — «пиратская» воронка: Acquisition, Activation, Retention, Revenue, Referral — привлечение, активация, удержание, выручка, виральность.">AARRR</span>: куда бьют механики</h3>
+  <p class="sub" style="margin-bottom:6px">Клик по стадии — список механик, которые на неё работают. Схема, не измерение.</p>
+  <div class="funnel" id="funnel"></div>
+  <div class="fmechs" id="fmechs">Выбери стадию воронки ↑</div>
+
+  <div class="note">Трезвая оговорка: цифры доноров (Duolingo, Temu, Kalshi) доказывают, что механика работает <b>в своей среде</b>.
+  Перенос в iGaming — гипотеза, которую проверяет A/B-тест, а не вера. Матрица — карта ожиданий для дизайна экспериментов, не прогноз.</div>
+
+<h3>Таксономия событий — на чём всё это меряется</h3>
+<p class="sub">Каждая механика выше оставляет след в одном потоке событий. Вот минимальный контракт этого потока — без него не считаются ни матрица, ни воронка.</p>
+  <table class="ev">
+    <tr><th>Событие</th><th>Ключевые параметры</th><th>Зачем</th></tr>
+    <tr><td><code>card_impression</code> / <code>card_dwell</code></td><td>card_type, tags, position, ms</td><td>знаменатель всего; время — главный скрытый сигнал ленты</td></tr>
+    <tr><td><code>card_action</code></td><td>like | dislike | fav | comment | share | why_opened</td><td>явные сигналы + прозрачность</td></tr>
+    <tr><td><code>bet_placed</code> / <code>bet_undone</code></td><td>type (sport/pred/pickem/micro/pool), stake, prob, source_card</td><td>конверсия карточка→ставка; отмены — метрика доверия</td></tr>
+    <tr><td><code>position_cashout</code></td><td>entry_prob, exit_prob, pnl</td><td>поведение «портфельных» игроков</td></tr>
+    <tr><td><code>game_demo_spin</code> / <code>cascade_chain</code></td><td>game, waves, source</td><td>демо→реал конверсия, глубина каскадов</td></tr>
+    <tr><td><code>season_progress</code></td><td>xp_delta, source, tier</td><td>экономика сезона, скорость прохождения</td></tr>
+    <tr><td><code>rg_event</code></td><td>limit_set, limit_hit, pause_on/off</td><td>guardrail-панель, отчётность</td></tr>
+  </table>
+
+<h3>Порядок проверки гипотез</h3>
+  <p class="d-body" style="max-width:860px">MVP реалистично собирается в три шага — каждый проверяет свой слой гипотез. <b>Шаг 1:</b> лента на эвристиках (веса тегов как в прототипе — без ML), спорт + пикемы, кошелёк с лимитами, стрик. Уже отличается от всего рынка.
+  <b>Шаг 2:</b> рынки предсказаний на AMM по согласованным категориям, каскадные игры от провайдеров, сезонный пропуск, соц-сигналы.
+  <b>Шаг 3:</b> ML-ранжирование вместо эвристик, копи-беттинг и пулы (нужна юридическая проработка совместных ставок), лайв-комнаты со стримерами. Прототип — это фактически спека шага 1 и витрина шагов 2–3.</p>
+</div>
+  <div class="wrap bigsec" id="sec-process">
+  <h2>Подводные камни: <em>где эта машина ломается на практике</em></h2>
+  <p class="sub">Механики — это не только код: половина живёт ежедневными операционными циклами, которых у прототипа нет. Поэтому вместо карты ролей — сводный список самых дорогих рисков: те, что уже всплывали в модулях, и сквозные, не принадлежащие ни одной механике.</p>
+  <div class="pitfalls" id="procCards"></div>
+</div>
+<div class="wrap bigsec">
+  <h2 id="sources">Источники</h2>
+  <ol id="srcList"></ol>
+</div>
+</section>
+<button id="backtop">↑ к схеме</button>
+
+<!-- ======================= PROTO ======================= -->
+<section class="pane wrap" id="pane-proto">
+  <div class="proto">
+    <div class="phcol"><div class="phwrap"><div class="phoneframe"><iframe id="protoFrame" title="Прототип «Импульс»"></iframe></div></div>
+    <button class="playb tochecks" onclick="document.querySelector('.checks').scrollIntoView({behavior:'smooth'})">К чек-листу ↓</button></div>
+    <div class="checks">
+      <h3 style="margin-top:0">Прототип: потрогай всё сам</h3>
+      <label><input type="checkbox"><span>Пройди онбординг: ответь, ставил ли раньше, — и получи <b>+50 XP и капсулу ещё до ленты</b></span></label>
+      <label><input type="checkbox"><span>Опытному <b>рынки предсказаний</b> в ленте открывает уровень — 120 XP (лайки тоже считаются); новичку хватит 5 ставок — тизер-карточка показывает прогресс</span></label>
+      <label><input type="checkbox"><span>Свайпни рынок предсказаний вправо — <b>ставка одним жестом</b>, затем «Отменить» в снекбаре</span></label>
+      <label><input type="checkbox"><span>Пройдись по нижнему меню: <b>Игры · Прогнозы · Лента · Общение · Профиль</b> — лента в центре, каталоги по краям, портфель теперь живёт в профиле</span></label>
+<label><input type="checkbox"><span>Ответь в онбординге <b>«нет, я новенький»</b> — рынки предсказаний и пикемы будут под замком и откроются после 5 и 10 ставок; прогресс виден в «Прогнозах» и в ленте</span></label>
+<label><input type="checkbox"><span>Поставь на матч в один тап и нажми <b>«?»</b> на карточке — прозрачность алгоритма</span></label>
+      <label><input type="checkbox"><span>Дизлайкни карточку — тост <b>«меньше такого»</b>; через пару карточек состав ленты сместится</span></label>
+      <label><input type="checkbox"><span>Крутани каскадный слот <b>Juice Rush</b> — каскад выпадает примерно в трети спинов, цепь ×2+ редкая и громкая</span></label>
+<label><input type="checkbox"><span>Поймай в ленте карточку <b>«занос»</b> — чужой выигрыш, прогноз или экспресс с кнопкой в формат; под ней — честная подпись про витрину выигрышей</span></label>
+<label><input type="checkbox"><span>Доиграй <b>Тропу</b> или <b>Мины</b> до конца — кнопка <b>«Сыграть ещё»</b> перезапустит раунд, а внизу каждой игры живёт лента недавних заносов других игроков</span></label>
+      <label><input type="checkbox"><span>Тропа, Мины и Плинко — отдельные <b>превью-карточки</b> в ленте: у каждой своя анимация, ставка и «забрать»</span></label>
+      <label><input type="checkbox"><span>Открой <b>комментарии</b> под любой карточкой и напиши что-нибудь — придёт ответ</span></label>
+      <label><input type="checkbox"><span>Вступи в <b>пул клуба</b> — после третьего прогноза появится «момент ценности» (регистрация)</span></label>
+      <label><input type="checkbox"><span>Зайди в «Игры» → <b>слот-стрим</b>: поставь на следующий спин Макса; спортивные лайв-комнаты — в «Прогнозах»</span></label>
+      <label><input type="checkbox"><span>Открой <b>капсулу дня</b> в квестах и забери награду пропуска в профиле</span></label>
+      <label><input type="checkbox"><span>В профиле подвинь <b>дневной лимит</b> вниз и упрись в него ставками — RG в действии</span></label>
+<label><input type="checkbox"><span>Там же — <b><span class="term" data-tip="<b>RTP</b> (return to player) — доля всех ставок, которая возвращается игрокам выигрышами. У реальных слотов обычно 94–97%.">RTP</span> сессии</b>: демо-математика откалибрована на целевые 95%</span></label>
+      <label><input type="checkbox"><span>Избранное едино: вкладка <b>★ в ленте</b> и секции <b>«Избранные игры»</b> и <b>«Избранные события»</b> наверху каталогов — события со ставкой в тап, игры с кнопкой «Играть»</span></label>
+      <label><input type="checkbox"><span>Перезагрузи страницу — стрик, позиции и лента <b>переживут перезапуск</b>; новая вкладка начинает демо с чистого листа</span></label>
+      <a class="playb" href="prototype.html" target="_blank" rel="noopener" style="display:block;width:100%;margin-top:14px">Открыть прототип в отдельной вкладке</a>
+      <p class="d-body" style="margin-top:10px;color:var(--faint);font-size:12px">Сброс демо — в профиле прототипа. Все данные фейковые, баланс демонстрационный, 18+.</p>
+    </div>
+  </div>
+</section>
+
+<div id="tip"></div>
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const el = h => { const d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstChild; };
+const R = (...ns) => ns.map(n=>`<sup><a href="#sources" data-gosrc="1">[${n}]</a></sup>`).join('');
+const CH = ['#2b5cff','#e8442e','#7a3fd1','#0f8f7a','#b07a0e']; // валидированная палитра (светлая поверхность)
+
+/* ================= ИСТОЧНИКИ ================= */
+const SOURCES = [
+  ['Lenny’s Newsletter — How Duolingo reignited user growth','https://www.lennysnewsletter.com/p/how-duolingo-reignited-user-growth'],
+  ['The Block — Prediction markets explode in 2025: Kalshi–Polymarket duopoly','https://www.theblock.co/post/383733/prediction-markets-kalshi-polymarket-duopoly-2025'],
+  ['Sensor Tower — E-commerce app battle: Temu vs Shein’s loyalty game','https://sensortower.com/blog/e-commerce-app-battle-temus-rising-star-challenged-by-sheins-loyalty-game'],
+  ['Altenar — Sportsbook UX trends to watch in 2026','https://altenar.com/blog/sportsbook-ux-trends-to-watch/'],
+  ['Fortune — Whatnot: the $5B livestream shopping app','https://www.fortune.com/2025/06/16/whatnot-startup-5-billion-dollar-livestream-video-shopping-app-auctions-sports-trade-card-breaks-ebay'],
+  ['Northeastern University — What makes Wordle so great','https://news.northeastern.edu/2022/01/21/what-makes-wordle-so-g-r-e-a-t/'],
+  ['iGaming Business — Spribe’s Aviator and the boom of crash games','https://igamingbusiness.com/casino-games/crashing-into-the-industry-spribes-aviator-and-the-boom-of-crash-games'],
+  ['UX Collective — Why 100M+ athletes are hooked on Strava','https://uxdesign.cc/why-over-100-million-athletes-are-hooked-on-strava-545708e17552'],
+  ['YPulse / WSJ / TransUnion — Prediction markets: young men’s latest obsession','https://www.ypulse.com/newsfeed/2026/02/05/the-norm-of-sports-betting-online-has-made-prediction-markets-young-mens-latest-obsession/'],
+  ['Decrypt — Gen Z is betting big on prediction markets','https://decrypt.co/355886/gen-z-betting-big-prediction-markets'],
+  ['NerdWallet — 2024 Gambling Survey','https://www.nerdwallet.com/investing/studies/2024-gambling-survey'],
+  ['Esports.net — Global esports betting statistics 2025','https://www.esports.net/wiki/guides/global-esports-betting-statistics-2025'],
+  ['SBC Americas — Playmaker / Miami of Ohio: Gen Z betting trends · выборка почти целиком мужская','https://sbcamericas.com/2023/01/17/playmaker-miami-gen-z-betting-trends/'],
+  ['iGaming Expert — Genting/Kinetic: Gen Z players’ iGaming interests · данные одного оператора без описания методологии','https://igamingexpert.com/news/games/genting-casino-player-igaming-data/'],
+  ['Nerdbot — Top 10 popular online slots 2025 · листикл: надёжно направление, не цифры','https://nerdbot.com/2025/11/29/top-10-popular-slots-online-everyones-spinning-in-2025/'],
+  ['CS.MONEY — 70M CS2 cases in October 2025? · оценка трекера, сами авторы называют её завышенной','https://cs.money/blog/trade/did-players-really-open-70-million-cs2-cases-in-october-2025/'],
+  ['Streams Charts — Live streaming and gambling','https://streamscharts.com/news/live-streaming-and-gambling-2023'],
+  ['The Block — World Cup drives record Robinhood prediction volumes','https://www.theblock.co/post/404731'],
+  ['Investing in the Web — eToro statistics','https://investingintheweb.com/brokers/etoro-statistics/'],
+  ['vc.ru — «Пульс» Т-Банка станет соцсетью «для всех», а не только для инвесторов','https://vc.ru/marketing/1609574-puls-t-banka-stanet-socsetyu-dlya-vseh-a-ne-tolko-dlya-investorov'],
+  ['Т-Банк — «Пульс»: соцсеть для инвесторов','https://www.tinkoff.ru/invest/pulse-social/'],
+['Outlook India / Respawn — Valve sued in New York over CS2 skin economy','https://respawn.outlookindia.com/gaming/gaming-news/valve-sued-new-york-cs2-skin-economy-loot-box-gambling'],
+];
+$('#srcList').innerHTML = SOURCES.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a></li>`).join('');
+
+/* ================= МЕХАНИКИ ================= */
+const T = (txt, tip) => `<span class="term" data-tip="${tip.replace(/"/g,'&quot;')}">${txt}</span>`;
+const MECHS = [
+{ id:'onb', g:'Каркас', node:'Онбординг', ico:'🚪', heat:2, tagline:'разогреваем рекомендации, знакомим с продуктом', name:'Taste-онбординг и регистрация в момент ценности', short:'Spotify-старт, демо-режим',
+  hyp:`Если пустить игрока в продукт за 30 секунд без регистрации и попросить аккаунт после третьего прогноза, то прохождение онбординга и активация вырастут — потому что просьба «сохранить прогресс» в момент, когда прогресс уже есть, конвертирует лучше, чем барьер на входе, когда ценность ещё не доказана.`,
+  idea:`Первые сессии в iGaming традиционно разбиваются о стену «форма → ${T('KYC','Know your customer — обязательная проверка личности игрока: документы и возраст. Для реальных денег — регуляторное требование; в демо-режиме не нужна.')} → депозит» ещё до первой ценности. Мы взяли онбординг музыкальных сервисов — пара тапов по интересам, и контент ${T('тёплый','«Тёплый» старт — рекомендации уже знают интересы пользователя. Противоположность — холодный старт: пустой профиль, которому нечего показать.')} с первого экрана, — а регистрацию перенесли в <b>момент, когда у игрока уже есть что сохранять</b>. Заодно выбор интересов решает ${T('холодный старт','Cold start — проблема пустого профиля нового пользователя: рекомендовать не на чем. Taste-онбординг даёт первые признаки до первого действия.')} рекомендаций: ленте есть от чего оттолкнуться до первого действия. И ещё один разворот: онбординг — не анкета перед продуктом, а первая сессия прогрессии — из него выходишь уже с очками, капсулой и видимым прогрессом пропуска.`,
+  data:`Duolingo показал, что битва выигрывается в удержании ранних сессий: рост CURR на 21% за четыре года объяснил рост DAU в 4,5 раза${R(1)}. Побочное подтверждение из молодёжного рисерча: беттор 18–24 готовится к ставке вдвое меньше старших (≈2,7 часа в неделю против ≈6)${R(13)} — длинный вход он просто не переживёт.`,
+  what:'Шаг 1 — «ставил раньше?»: без опыта лента стартует с мини-игр, с опытом — миксует ставки. Шаг 2 — форматы: быстрые раунды, слоты, ставки, прогнозы, соц; темы и турниры уточняем только у выбравших ставки или прогнозы — новичку вопрос про АПЛ ничего не даёт. Перед лентой — reward-экран: +50 XP, капсула и прогресс пропуска (вся сцепка — во врезке ниже). Демо справа: переключи опыт и выбери интересы — состав первого экрана меняется. Момент KYC и первого депозита сознательно отодвинут: до него игрок знакомится с продуктом и играет в честное демо, а «Сохраним прогресс?» — предложение регистрации — всплывает после третьего прогноза, когда онбординг в продукт уже состоялся.',
+  demo:'onb',
+  metrics:[['Прохождение онбординга','up'],['Время до первого действия','up'],['Активация (первая демо-ставка или депозит)','up']],
+  tech:'Гостевая сессия с локальным состоянием, мердж в аккаунт при регистрации. Триггер «момента ценности» — правило на счётчике действий, дальше — настраиваемый журнал триггеров.',
+  proc:'Комплаенс решает, что разрешено в демо-режиме без KYC в конкретной юрисдикции. Подводный камень: KYC слишком рано ломает активацию, слишком поздно — лицензию; это настраиваемый баланс по рынку, а не константа продукта.' },
+{ id:'feed', g:'Каркас', node:'Лента', ico:'🎞️', heat:1, tagline:'каркас продукта: всё — карточка', name:'Алгоритмическая лента', short:'TikTok-паттерн вместо лобби',
+  hyp:`Если домашним экраном станет единая обучающаяся лента (вместо лобби и росписи), то длина сессии и число контактов с контентом вырастут кратно, а конверсия «увидел → поставил» поднимется — потому что продукт сам подносит релевантное событие в момент интереса, вместо того чтобы заставлять игрока искать его по разделам.`,
+  idea:`Мы начали с вопроса: где аудитория 18–26 уже проводит часы — и почему там. Ответ один: вертикальные ленты с обучающимся алгоритмом. Индустрия это видит, но прикручивает персонализацию поверх старого каркаса «лобби + роспись». Мы развернули иерархию: <b>лента — не фича, а каркас</b>, и всё в продукте умеет быть карточкой. Прозрачное «почему я это вижу» снимает главный упрёк алгоритмическим лентам.`,
+  data:`Лента с обучающимся алгоритмом — механика, на которой TikTok держит рекордное время в приложении, а Temu превратил коммерцию из каталога в рекомендации и показал одно из самых быстрых проникновений в истории мобильной торговли${R(3)}. Персонализацию и модульные интерфейсы сами операторы называют трендом 2026 года${R(4)} — окно «лента как каркас» ещё открыто, но закрывается.`,
+  what:'Единственный «домашний» экран — вертикальная лента полноэкранных карточек: матч, рынок, игра, купон прогнозиста, квест. Лента учится на свайпах, времени на карточке, ставках, лайках и дизлайках; кнопка «?» объясняет каждый показ. Справа — симулятор этого контура: жми сигналы и смотри, как меняются веса и состав выдачи.',
+  demo:'feed',
+  metrics:[['Длина сессии','up'],['Карточек за сессию','up'],['D7 / CURR','up'],['Конверсия показ→ставка','up']],
+  tech:'Карточка — JSON-контракт, типы карточек — плагины рендерера. Контур: event stream → <span class="term" data-tip="<b>Feature store</b> — хранилище признаков пользователя (вес интереса к тегу, частота сессий), одинаковых в обучении и в проде.">feature store</span> (онлайн-веса) → retrieval + ранжирование, <span class="term" data-tip="<b>Многорукий бандит</b> — алгоритм, который балансирует «показывать проверенное» и «исследовать новое»: карточки-разведки в ленте — это он.">бандит</span> подмешивает карточки-разведки. В MVP хватает эвристики весов тегов — ровно как в прототипе.',
+  proc:'Владельцы — продукт + ML: еженедельный разбор качества ленты, контент-наполнение типов карточек. Подводный камень: лента без свежего контента деградирует в карусель повторов — наполнение карточек должно быть чьей-то явной обязанностью, иначе алгоритм будет ранжировать пустоту.' },
+{ id:'prob', g:'Каркас', node:'Вероятности', ico:'％', heat:1, tagline:'переводим ставки на понятный язык', name:'Вероятности вместо коэффициентов', short:'Язык Polymarket, не букмекера',
+  hyp:`Если убрать коэффициенты и показывать шанс в процентах с готовой выплатой, то активация новичков и конверсия в первую ставку вырастут — потому что исчезает порог «я не понимаю, что значит кэф», главный фильтр на входе в беттинг для нового поколения.`,
+  idea:`Молодёжный рисерч дал разворот: ставки у 18–26 не «скучные» — <b>скучен язык букмекера</b>. Рынки предсказаний выросли на языке «вероятность и позиция», и этот язык не требует обучения. Мы сделали его единственным в продукте: интерфейс продаёт решение за секунды, а не требует перевода из «2,40» в голове.`,
+  data:`Gen Z — самое ставящее поколение: 34% всей беттинг-активности США во II квартале 2025-го и максимальный чек на человека${R(9)}. Рынки предсказаний наторговали $44 млрд за 2025 год именно на языке процентов${R(2)}; беттор 18–24 тратит на анализ вдвое меньше старших${R(13)} — формат, который не нужно расшифровывать, попадает ровно в этот ритм принятия решений.`,
+  what:'Нигде нет «2,40»: исход показывается как шанс в процентах и готовая выплата «◈100 → ◈237». Прогнозы читаются как позиции с живой ценой. Демо-конвертер справа показывает, что это одна и та же математика — меняется только язык.',
+  demo:'prob',
+  metrics:[['Активация новичков','up'],['Конверсия показ→ставка','up'],['Обращения в саппорт','down']],
+  tech:'Чистый слой представления над той же линией: коэф → подразумеваемая вероятность (с маржой) → выплата. В трейдинге не меняется ничего — меняется контракт отображения.',
+  proc:'Трейдинг следит, чтобы маржа не «просвечивала» нечестно; юристы — за формулировками выплат. Подводный камень: опытные бетторы привыкли к коэффициентам — для них нужен переключатель отображения, иначе язык простоты оттолкнёт меньшинство с самым высоким чеком.' },
+{ id:'pred', g:'Вертикали', node:'Предсказания', ico:'🔮', heat:1, tagline:'повод открывать продукт из новостного цикла', name:'Рынки предсказаний и портфель', short:'Мем-рынки, позиции, кэшаут',
+  hyp:`Если добавить рынки предсказаний третьей вертикалью и показывать ставки как портфель позиций с живой ценой и продажей, то вырастут кросс-селл вертикалей и частота сессий — потому что мем-рынки дают повод открывать продукт из новостного цикла, а открытая позиция сама тянет вернуться и проверить цену.`,
+  idea:`Самый горячий формат молодёжного рисерча — и <b>не другая аудитория, а правильная обёртка для той же</b>: «часть хастла, часть игры, часть новостного адреналина». Мы сделали рынки предсказаний полноценной вертикалью: мем-рынки из новостного цикла плюс брокерский экран «Портфель» — ставка живёт как позиция, которую можно продать. Подача на вырост — карточка рынка с новостной или мемной преамбулой: короткая подводка «что случилось», из которой вопрос «ДА/НЕТ» вырастает сам.`,
+  data:`Kalshi и Polymarket крутят $1–2,3 млрд в неделю, 80% ставок — до $100${R(9)}; узнаваемость Polymarket у Gen Z/миллениалов вчетверо выше, чем у старших (17% против 4%)${R(10)}; спорт стал главным драйвером объёма на рынках предсказаний${R(2,18)}, а пресса называет их «новой одержимостью молодых мужчин»${R(9)}.`,
+  what:'Спорт, крипто, погода, кино, мемы недели — рынки «ДА/НЕТ» со свайпом. Ставка = позиция: экран «Портфель» с живой ценой, мини-графиком и кнопкой «Продать». Демо справа: купи «ДА», подожди пару тиков дрейфа цены и продай.',
+  demo:'pred',
+  metrics:[['Доля новой вертикали в NGR','up'],['Кросс-селл вертикалей','up'],['Частота сессий','up'],['Удержание «портфельных»','up']],
+  tech:`Мем-рынки без естественной линии прайсуются через ${T('AMM/LMSR','Автоматический маркет-мейкер (logarithmic market scoring rule): цена «ДА» двигается от объёма покупок — ликвидность без толпы трейдеров. Кэшаут считается из той же модели.')}; спортивные — от линии. Резолв — по заранее описанным правилам и источникам.`,
+  proc:`Контент-опс рынков: придумывать, прайсить, резолвить; юрисдикция определяет допустимые категории. Подводный камень — ${T('оракул','Правило и источник, по которым рынок закрывается: «снег — по данным метеослужбы X на дату Y». Прописывается до открытия рынка.')}: двусмысленное правило резолва рождает споры и репутационные пожары, поэтому оно пишется до открытия рынка, а не после. Второй камень — ликвидность: пустой рынок не продаёт сам себя, значит, либо под категорию выделяется казначейский капитал маркет-мейкера (та самая роль AMM), либо рынок просто не открываем.`},
+{ id:'casc', g:'Вертикали', node:'Каскад', ico:'🧃', heat:1, tagline:'казино в форме казуалки', name:'Каскадный слот (match-3)', short:'Sweet Bonanza-паттерн',
+  hyp:`Если ядром казино-вертикали сделать каскадный слот с играбельным демо прямо в ленте, то вовлечение молодых сегментов в казино и конверсия демо→реал вырастут — потому что формат считывается как знакомая казуалка, а попробовать его можно без перехода и депозита, в одном свайпе от матча.`,
+  idea:`Гипотеза «слоты — скучная старпёрская фигня» подтвердилась ровно наполовину: <b>умирает не жанр, а форма.</b> Барабан с линиями выплат проигрывает полю «как в match-3» — цепные схлопывания, растущий множитель, казуальная подача. Мы сделали такой слот ядром казино-вертикали и дали его попробовать прямо в карточке ленты.`,
+  data:`Слоты — продукт №1 во всех возрастах, но у 18–24 их доля заметно ниже (35% активности против 47,3% у 55+)${R(14)}. При этом наверху чартов 2025 года — Gates of Olympus и Sweet Bonanza, обе построены на tumble-механике${R(15)}: рынок уже проголосовал за каскады.`,
+  what:'Juice Rush: поле 6×5, семь и больше одинаковых символов схлопываются, новые падают сверху, цепь растит множитель. В ленте — превью собственной отрисовки с автоспином, полная игра со ставкой спина открывается отдельным экраном (в прототипе так и сделано). Мини-версия — справа: выбери ставку и крути до цепочки. Паттерн теперь един для всех игр ленты: превью в карточке, полная игра выезжает нижним листом со своими контролами — слоту ставка/спин/автоспин, мини-играм свои.',
+  demo:'casc',
+  metrics:[['Вовлечение в казино-вертикаль','up'],['Демо→реал конверсия','up'],['Широта дискавери игр','up']],
+  tech:`В проде математика у провайдера через ${T('RGS','Remote game server: RNG и математика игры исполняются на сервере провайдера, оператор получает результаты по API.')}; своё — витрина, демо-режим и выдача игр в ленту как карточек.`,
+  proc:'Казино-менеджер курирует портфель игр и «подборку недели». Подводный камень — интеграция: настоящий слот грузится через iframe RGS-провайдера, и в карточке ленты такой iframe не поживёт. Значит, в ленте показываем превью-анимацию собственной отрисовки (или фейк-демо), а полная игра открывается отдельным экраном — ровно этот паттерн отражён в прототипе. Плюс лицензии: автоплей, ускорители и «казуальный» маркетинг ограничены на ряде рынков.' },
+{ id:'crash', g:'Вертикали', node:'Краш', ico:'🚀', heat:1, tagline:'раунд в ритме скролла', name:'Инстант-игры: краш', short:'Раунд за секунды',
+  hyp:`Если дать инстант-формат с раундом в несколько секунд как нативную карточку ленты, то частота игровых действий и длина сессии вырастут — потому что краш не требует переключения контекста: он потребляется в том же ритме скролла, что и остальные карточки.`,
+  idea:`Структурно идеальный жанр для продукта-ленты: раунд живёт секунды, решение одно — когда выйти, <b>вся драматургия помещается в одну карточку</b>. Плюс вокруг инстант-игр уже выросла стримерская культура — зрелищность встроена в сам формат.`,
+  data:`Краш — самый быстрорастущий жанр iGaming последних лет: Aviator сделал Spribe феноменом индустрии${R(7)}. Гэмблинг-стримы, где инстант-форматы — главный контент, собирали до 62,6 млн часов просмотра в месяц на Twitch и стабильно держатся в топ-10 категорий Kick${R(17)}.`,
+  what:'«Разгон»: ракета тянет кривую множителя по звёздному небу, забрать нужно до обрыва; история последних раундов — как в реальных краш-играх. Важное свойство механики: она не привязана к визуалу — ракета, самолёт или просто бегущий коэффициент на экране; технически это один растущий множитель и кнопка вывода до обрыва, поэтому скины под любую тему делаются почти бесплатно. Мини-версия справа: успей нажать «Забрать».',
+  demo:'crash',
+  metrics:[['Частота раундов/сессию','up'],['Длина сессии','up'],['Вовлечение молодых сегментов','up']],
+  tech:'Провайдерский краш по API или свой с доказуемой честностью (<span class="term" data-tip="<b>Commit-reveal</b> — схема доказуемой честности: хеш исхода публикуется до ставок (commit), сид раскрывается после раунда (reveal) — изменить результат задним числом нельзя.">commit-reveal</span> сида раунда). Общий раунд для всех — отдельный realtime-сервис.',
+  proc:'Риск-менеджмент следит за экспозицией раунда. Подводный камень: это самый быстрый формат продукта — RG-контур должен отдельно мониторить частоту раундов у игрока, иначе именно здесь копится проблемная игра.' },
+{ id:'social', g:'Соцслой', node:'Соц-сигналы', ico:'💬', heat:2, tagline:'сигналы алгоритму и спор под событием', name:'Социальные сигналы и UGC', short:'Соцсеть поверх событий',
+  hyp:`Если дать явные сигналы и треды на каждой карточке, то качество персонализации и удержание «подключённых» игроков вырастут — потому что дизлайк дешевле и честнее, чем молчаливый скролл мимо, а спор под событием создаёт причину вернуться, не связанную с деньгами.`,
+  idea:`Удержание вокруг событий давно работает через спор — чаты Twitch, спортивный твиттер, — но внутри букмекеров этого слоя почти нет. Мы перенесли стандартный набор сигналов лент (лайк/дизлайк/комментарий/шер) прямо на карточки событий, заодно получив для алгоритма <b>явную обратную связь задолго до денег</b>. Комментарии и треды — это ещё и ${T('UGC','User-generated content — контент, который создают сами пользователи: треды, реакции, разборы. Контентный слой, который растёт без редакции и даёт причину вернуться.')}: контент вокруг событий пишут сами игроки.`,
+  data:`Беттор 18–24 живёт в соцсетях и берёт информацию там: исследование Playmaker/Miami of Ohio фиксирует и привычку к соцплатформам, и вдвое меньшее время на анализ${R(13)} — решения принимаются в среде, где спор и чужое мнение под рукой. Соцграф как главный фактор удержания подтверждён и вне беттинга — у Strava со 100 млн+ атлетов${R(8)}.`,
+  what:'Экшн-бар на каждой контентной карточке: лайк (+2 к весу тега), дизлайк (−3 и тост «меньше такого»), комментарии в bottom-sheet с живым тредом, шаринг. Демо справа — как сигналы двигают вес.',
+  demo:'social',
+  metrics:[['Соц-действий на пользователя','up'],['Качество персонализации','up'],['D7 «подключённых»','up'],['Виральность (шаринг)','up']],
+  tech:'Комменты — дерево тредов поверх realtime-канала; сигналы падают в общий event stream. Антиспам и модерация — ML-фильтр + очередь ревью.',
+  proc:'Модерация <span class="term" data-tip="<b>UGC</b> (user-generated content) — всё, что создают сами игроки: комментарии, чаты, ники, профили.">UGC</span> со <span class="term" data-tip="<b>SLA</b> (service level agreement) — норматив скорости реакции: например, жалоба разбирается не дольше N минут.">SLA</span> и правила комьюнити. Подводный камень: «продам верные прогнозы» в комментах — готовый канал скама; без активной модерации соцслой убивает доверие быстрее, чем создаёт.' },
+{ id:'copy', g:'Соцслой', node:'Копи и заносы', ico:'🤝', heat:2, tagline:'ставка как социальное событие и доказательство', name:'Социальный беттинг: копи, пулы и заносы', short:'eToro-паттерн + соцдоказательство',
+  hyp:`Если дать «повторить купон» у прогнозистов с публичной точностью, совместные пулы клуба и витрину чужих заносов с кнопкой в формат, то вырастут виральность, удержание клубных игроков и конверсия показ→ставка — потому что доверие к человеку, общий результат и наглядное доказательство «здесь выигрывают» работают на разные слои мотивации, недоступные баннеру.`,
+  idea:`«Повторить сделку человека, которому доверяешь» — проверенная финтехом механика; мы перенесли её на купоны и добавили пулы: клуб скидывается на общий экспресс по долям. Ключевой разворот — рейтинг прогнозистов считается от точности, а не от оборота: <b>статус зарабатывается качеством прогноза</b>. Третий слой — витрина заносов: соцдоказательство в чистом виде, перенесённое из стрим-культуры, где чужой занос — главный жанр контента. Копи отвечает на вопрос «кому верить», пул — «с кем играть», витрина — «зачем заходить сейчас».`,
+  data:`eToro вырастил на копи-трейдинге десятки миллионов сделок${R(19)}; групповые пулы и community-led betting операторы называют трендом социального беттинга${R(4)}. Смотреть чужую игру — само по себе формат: гэмблинг-стримы собирали до 62,6 млн часов в месяц на Twitch, топ-канал — 26,2 млн часов за год${R(17)}. Молодой игрок сначала смотрит чужие заносы — и только потом играет сам.`,
+  what:'Профили прогнозистов с точностью (суммы не публикуются) и кнопкой «Повторить купон». Пул клуба: четверо скидываются по ◈100 на общий экспресс, выигрыш — по долям. Витрина заносов: карточки по четырём направлениям — занос в казино, точный прогноз по андердогу, зашедший экспресс, взлёт в лиге — каждая с кнопкой в свой формат; все цифры берутся из математики демо, под карточкой подпись «витрина показывает только выигрыши», частота в ленте ограничена. Демо справа — три слайда: копи-купон, сбор пула, занос.',
+  demo:'pool',
+  metrics:[['Виральность / приглашения','up'],['Удержание клубных игроков','up'],['Частота ставок подписчиков','up'],['Показ→ставка из витрины','up']],
+  tech:'Подписки и копирование — просто; пул — <span class="term" data-tip="<b>Эскроу</b> — блокировка суммы на отдельном счёте: доли участников замораживаются до расчёта общей ставки.">эскроу</span> в кошельке и общая позиция с долями. Витрина — поток выигрышей выше порога → фильтр согласий → карточки в ленту; пороги и частота — LiveOps-конфиг.',
+  proc:'Юристы, антифрод и финопс делят этот модуль. Подводные камни: совместная ставка юридически — отдельная конструкция (не везде допустима), а связка «прогнозист + подписчики» — готовая схема сговора, которую антифрод должен видеть с первого дня. Третий камень — витрина заносов: публикация чужого выигрыша требует явного согласия игрока (шаринг-карточка и есть опт-ин), а win-promotion на лицензируемых рынках зажат рекламными кодексами — подпись «только выигрыши», частотные капы и выключатель в настройках обязательны с первого дня.' },
+{ id:'live', g:'Соцслой', node:'Лайв', ico:'📡', heat:2, tagline:'смотрим и ставим вместе', name:'Совместный просмотр: лайв-комнаты и стримы', short:'Whatnot-драматургия',
+  hyp:`Если дать лайв-комнаты с чатом и микроставками в закрывающихся окнах, то длина лайв-сессий и доля ${T('in-play','In-play — ставки по ходу события; противоположность — прематч, ставки до начала.')} ставок вырастут — потому что таймер окна превращает ставку из отложимого решения в момент, который нельзя пропустить, а чат делает просмотр совместным.`,
+  idea:`Два наблюдения сошлись в одну механику: live-шопинг доказал, что формат «смотрю и действую в моменте» держит сессии десятками минут, а гэмблинг-стримы доказали, что <b>молодые готовы часами смотреть, как играют другие</b>. Мы перенесли это внутрь продукта — легально и с RG-контуром: комнаты событий и слот-стрим, где комната ставит на спины ведущего.`,
+  data:`Whatnot с аукционной драматургией дошёл до оценки ~$5 млрд${R(5)} — рынок подтвердил, что формат «смотрю и действую в моменте» умеет удерживать и монетизировать. Гэмблинг-стриминг доказывает вторую половину гипотезы: до 62,6 млн часов просмотра в месяц на Twitch и 26,2 млн часов за год у топ-канала Kick${R(17)} — аудитория готова часами смотреть, как играют другие.`,
+  what:'Комнаты: эфир, чат с комментариями и ставками аудитории в моменте, микроставки «окно закроется через 30 секунд». Слот-стрим: Макс П. крутит Juice Rush, комната ставит сайд-беты на его спины. Демо справа — окно микроставки с таймером и чат, где комментарии и ставки комнаты появляются по ходу эфира.',
+  demo:'live',
+  metrics:[['Длина лайв-сессий','up'],['Доля in-play ставок','up'],['Конверсия зритель→игрок','up']],
+  tech:'Стриминг эфира, realtime-чат, сервис микрорынков с жёстким таймингом окон; сайд-беты на действия хоста резолвятся по телеметрии игры.',
+  proc:'Партнёрка стримеров: контракты, расписание, дисклеймеры. Подводный камень: стример с «нарисованным» банкроллом — готовый скандал; честность балансов и условий — часть бренда, а не мелкий шрифт.' },
+{ id:'streak', g:'Удержание', node:'Стрик и лиги', ico:'🔥', heat:2, tagline:'три причины вернуться сегодня', name:'Стрик · лиги · сезонный пропуск', short:'Duolingo-ядро + battle pass',
+  hyp:`Если собрать контур «стрик + недельные лиги + сезонный пропуск» на очках за активность, то CURR и число сессий в неделю вырастут — потому что у игрока появляются три несгораемые причины вернуться сегодня (день стрика, место в лиге, прогресс сезона), не связанные с размером ставок.`,
+  idea:`Ядро удержания мы перенесли из образования и игр почти целиком — стрик с заморозками, недельные лиги, сезонный пропуск, ежедневный ритуал «один вопрос на всех», — заменив одно: <b>очки и статус считаются от активности и участия в продукте, а не от проигранных денег</b>. Это и вовлечение, и ответ регулятору.`,
+  data:`Лиги подняли время в Duolingo на 17% и втрое увеличили долю сверхвовлечённых; стрик 7+ дней держит больше половины DAU; после ~10 дней стрика отток падает кратно${R(1)}. Из коммерции тот же вывод: Shein удерживает покупателей заметно лучше Temu, и аналитики объясняют разрыв ежедневными поводами открыть приложение — играми, дропами и купонами, а не ценой${R(3)}. А Wordle показал силу ритуала «одна задача в день, общая для всех»: результат хочется обсудить и переслать, потому что задача у всех одна, а исход — свой${R(6)}.`,
+  what:'Стрик дней с прогнозом (+заморозки), недельные лиги с повышением и вылетом, сезонный пропуск с бесплатной и платной веткой. Демо справа — зоны устойчивости стрика.',
+  demo:'streak',
+  metrics:[['CURR / D7','up'],['Сессий в неделю','up'],['DAU/MAU stickiness','up'],['Выручка пропуска','up']],
+  tech:`${T('LiveOps','Операционное управление «живыми» механиками: сезоны, квесты и награды описываются конфигами и меняются без релиза приложения.')}-конфиги сезонов, ${T('идемпотентный','Повторная обработка того же события не задваивает очки; леджер — журнал всех начислений XP.')} XP-леджер, крон недельных лиг — всё вне критического пути денег.`,
+  proc:'LiveOps-календарь: сезон раз в 6–8 недель, еженедельный тюнинг квестов. Подводный камень: XP-инфляция — экономику наград нужно считать как валютную, иначе прогресс обесценится за два сезона.' },
+{ id:'caps', g:'Удержание', node:'Капсула', ico:'💊', heat:2, tagline:'ежедневный ритуал с предвкушением', name:'Капсула дня (reveal)', short:'Язык кейсов, без денег внутри',
+  hyp:`Если заменить кнопку «чек-ин» капсулой с reveal-анимацией и нефинансовыми наградами, то daily return rate и stickiness вырастут — потому что предвкушение «что выпадет» делает ежедневный ритуал самоценным, а отсутствие денег внутри удерживает механику вне лутбокс-регуляторики.`,
+  idea:`Анимация ожидания и вскрытия — родной язык аудитории, выросшей на кейсах CS2. Но капсула здесь — не изолированная «плюшка за чек-ин», а <b>узел общей системы мотивации</b>: из капсулы выпадают фриспины, фрибеты, XP и поинты сезонного пропуска; пропуск на верхних уровнях открывает дополнительные капсулы; стрик ежедневных визитов качает пропуск. Петля замкнута — стрик → пропуск → капсулы → награды — и каждая награда ведёт в игры и прогнозы, а не в абстрактный «бонус». Жёсткая граница при этом остаётся: <b>кэша в капсуле нет никогда</b>.`,
+  data:`Кейсы CS2 открывают десятками миллионов в месяц (апрель 2023 — ~50 млн, октябрь 2025 по трекерам — до 70 млн с оговорками о завышении), ключ стоит $2,50${R(16)} — reveal для этой аудитории давно родной жест, а не экзотика. Против Valve при этом подан иск в Нью-Йорке за лутбокс-экономику${R(22)} — граница «без денег внутри» не косметическая.`,
+  what:'Капсула трясётся, раскалывается и выдаёт награду дня: заморозка стрика, XP, фриспины, фрибет или поинты пропуска — раз в день, бесплатно, кэша внутри нет. Демо справа — тапни капсулу; ниже — схема всей системы мотивации.',
+  demo:'caps',
+  metrics:[['Daily return rate','up'],['DAU/MAU stickiness','up']],
+  tech:'Таблица наград с весами, защита от повторного открытия, анимация на клиенте. Тривиально — и в этом прелесть.',
+  proc:'Гейм-дизайнер наполняет пул наград и вместе с LiveOps балансирует петлю «стрик → пропуск → капсулы». Подводных камня два: платные открытия или кэш в наградах мгновенно переводят капсулу в лутбокс-регуляторику, а фриспины и фрибеты в наградах — пограничная зона, которую юристы должны подтвердить на каждом рынке отдельно.' },
+{ id:'rg', g:'Доверие', node:'RG-контур', ico:'🧭', heat:3, tagline:'контроль как часть продукта', name:'RG-контур: прозрачность, лимиты, undo', short:'Screen Time-подход, фича — не сноска',
+  hyp:`Если сделать прозрачность и контроль видимыми фичами (честный P&L, лимит с прогрессом, пауза без потери стрика, отмена ставки), то долгосрочный LTV и доверие вырастут при удержании guardrail-метрик в норме — потому что игрок, который видит честную картину и может остановиться, остаётся в продукте годами, а не выгорает за квартал.`,
+  idea:`Модуль родился из честного взгляда на остальные одиннадцать: мы собираем продукт, который очень хорошо умеет вовлекать, — значит, <b>контур контроля обязан быть таким же продуктовым, как лента</b>. Образцы — вне индустрии: Screen Time, бюджеты необанков, undo в денежных переводах.`,
+  data:`Регуляторы ужесточают требования к геймификации и функциям вовлечения${R(4)} — встроенный RG превращается из затрат в преимущество на лицензируемых рынках. Прямых цифр роста удержания у этого модуля нет — это ставка на доверие и регуляторную устойчивость, и мы говорим об этом честно.`,
+  what:'Виджет «Твоя неделя» (время, ставки, честный P&L), дневной лимит трат, лимит длины сессии, правило вывода — автовывод выигрыша и запрет отмены вывода, — пауза без сгорания стрика, отмена ставки в окне нескольких секунд, «почему я это вижу» на каждой карточке. Демо справа — упрись в каждый из лимитов.',
+  demo:'rg',
+  metrics:[['Доверие / NPS','up'],['Долгосрочный LTV','up'],['Доля игроков у лимитов','guard'],['Жалобы и самоисключения','guard']],
+  tech:'Лимиты и пауза живут в кошельке — их нельзя обойти клиентом. Undo — отложенный коммит ставки. RG-мониторинг — модели паттернов риска поверх событий.',
+  proc:'RG-комплаенс: пороги, бережные интервенции, отчётность регулятору. Подводный камень: формальный RG «для галочки» виден и игрокам, и регулятору — либо он продуктовый, как здесь, либо не работает вовсе.' },
+];
+
+/* ================= STORY RENDER ================= */
+const heatLbl = {1:'горячо у 18–26',2:'тепло',3:'слой доверия'};
+const GROUPS = ['Каркас','Вертикали','Соцслой','Удержание','Доверие'];
+const GCOL = {'Каркас':CH[0],'Вертикали':CH[1],'Соцслой':CH[2],'Удержание':CH[3],'Доверие':CH[4]};
+function renderMetro(){
+  $('#glegend').innerHTML = GROUPS.map(g=>`<span><b style="background:${GCOL[g]}"></b>${g}</span>`).join('');
+  $('#metro').innerHTML = MECHS.map((m,i)=>`
+    <button class="stop" data-go="m-${m.id}" style="--gcol:${GCOL[m.g]}">
+      <i>${String(i+1).padStart(2,'0')}</i><span>${m.node}</span>
+    </button>`).join('');
+  $$('.stop').forEach(s=>s.onclick = ()=>{
+    document.getElementById(s.dataset.go).scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
+const SUP = n => '<sup><a href="#sources" data-gosrc="1">['+n+']</a></sup>';
+const INSET_PATH = `
+<section class="inset" id="ins-path">
+  <span class="ik">Врезка · путь игрока</span>
+  <h3>Онбординг, уровни раскрытия и как они сцеплены с прогрессией</h3>
+  <p class="d-body">Главный риск ленты «всё сразу» — новичок получает рынки предсказаний, ставку дня и коллективные ставки первым же экраном и уходит, не разобравшись. Поэтому путь собран как в игре: короткий онбординг с ветвлением, награда до первой ленты и постепенное раскрытие форматов — новичку рынки предсказаний и пикемы открываются после первых ставок, соцслой дальше открывают уровни. XP капает за любую активность, включая лайки и дизлайки, — обучение алгоритма само двигает игрока по прогрессии.</p>
+  <div style="font-size:9.5px;font-weight:800;letter-spacing:1.4px;color:var(--muted);margin-top:16px">ЭТАПЫ ОНБОРДИНГА</div>
+  <div class="pathsteps">
+    <div class="pstep"><b>1 · ОПЫТ</b><span>«ставил раньше?» — один тап, два пути</span></div>
+    <div class="parr">→</div>
+    <div class="pstep"><b>2 · ФОРМАТЫ</b><span>быстрые раунды · слоты · ставки · прогнозы · соц</span></div>
+    <div class="parr">→</div>
+    <div class="pstep"><b>3 · ТЕМЫ И ТУРНИРЫ</b><span>только если выбраны ставки или прогнозы — новичку вопрос про АПЛ не нужен</span></div>
+    <div class="parr">→</div>
+    <div class="pstep"><b>4 · НАГРАДА</b><span>+50 XP, капсула, прогресс пропуска — до первой ленты</span></div>
+    <div class="parr">→</div>
+    <div class="pstep"><b>5 · ЛЕНТА УР. 1</b><span>сборка под ответы шагов 1–2</span></div>
+  </div>
+  <div style="font-size:9.5px;font-weight:800;letter-spacing:1.4px;color:var(--muted);margin-top:18px">МАТЧИНГ: УРОВЕНЬ → МЕХАНИКИ → ДЕЙЛИКИ → ПРОПУСК</div>
+  <table class="pathtbl">
+    <tr><th>Уровень</th><th>Открывается в ленте</th><th>Дейлики уровня</th><th>Ближайшая награда пропуска</th></tr>
+    <tr><td>Старт · 0 XP</td><td>мини-игры, слоты, каскад, краш; при опыте — ещё матчи и пикемы</td><td>«сыграй 3 раунда любой игры», «открой капсулу дня», «поставь 5 лайков ленте»</td><td>100 XP — ❄️ заморозка стрика</td></tr>
+    <tr><td>Ур. 2 · 120 XP</td><td>рынки предсказаний, прогноз дня</td><td>«ответь на прогноз дня», «купи ДА/НЕТ на любом рынке»</td><td>250 XP — 🎰 20 демо-спинов</td></tr>
+    <tr><td>Ур. 3 · 240 XP</td><td>соцслой: прогнозисты, копи, пулы клуба</td><td>«подпишись на прогнозиста», «вступи в пул», «оставь комментарий»</td><td>450 XP — 🎨 косметика профиля</td></tr>
+  </table>
+  <div class="sloop"><span style="font-size:15px">🧩</span> дейлики каждого уровня написаны под только что открытый формат — они и есть туториал; награды пропуска (100/250/450) чередуются с порогами раскрытия (120/240), так что ближайшая цель есть всегда</div>
+  <div class="icallout"><b>Оговорка.</b> Пороги, состав дейликов и сетка наград условные — в проде их тюнит продуктовая аналитика по воронке активации и LiveOps. Заблокированные форматы видны в ленте тизер-карточкой с прогрессом: раскрытие читается как цель, а не как ограничение.</div>
+</section>`;
+const INSET_SOCIAL = `
+<section class="inset" id="ins-social">
+  <span class="ik">Врезка · социальная динамика</span>
+  <h3>Соцслой целиком: подписки → друзья → кланы</h3>
+  <p class="d-body">Копи-беттинг и пулы из модуля выше — два узла большей системы. Соцслой собирается из трёх уровней связи, и каждый следующий держит сильнее предыдущего: подписка — самая лёгкая связь, клан — самая прочная. Каждый уровень добавляет причину вернуться, не связанную с деньгами.</p>
+  <p class="d-body">Витрина заносов — соцдоказательство этого слоя — разобрана в модуле выше. Её главный риск назовём и здесь: витрина выигрышей по определению скрывает проигрыши — <span class="term" data-tip="<b>Survivorship bias</b> — ошибка выжившего: в выборку попадают только успешные случаи, проигравшие невидимы.">survivorship bias</span>, — поэтому честная подпись под карточкой и частотные капы не косметика, а условие существования механики.</p>
+  <div class="schemerow">
+    <div class="snode" style="--c:#2b5cff"><div class="si">👤</div><b>ПРОФИЛЬ</b><p>рисованный аватар, публичная точность, витрина статуса</p></div>
+    <div class="sarr"><b>→</b>подписываюсь</div>
+    <div class="snode" style="--c:#0f8f7a"><div class="si">🔔</div><b>ПОДПИСКИ</b><p>односторонние: прогнозисты, копи-купоны, лента «кого читаю»</p></div>
+    <div class="sarr"><b>→</b>дружим</div>
+    <div class="snode" style="--c:#7a3fd1"><div class="si">🤝</div><b>ДРУЗЬЯ</b><p>взаимные: лента активности друзей, кудосы, приватные споры один на один</p></div>
+    <div class="sarr"><b>→</b>собираемся</div>
+    <div class="snode" style="--c:#e8442e"><div class="si">🛡️</div><b>КЛАНЫ</b><p>группы: общий чат, клановые лиги, пулы-ивенты — «клан собирает экспресс»</p></div>
+  </div>
+  <div class="sloop"><span style="font-size:15px">⟲</span> в прототипе уже живут подписки, копи, кудосы, пул клуба и карточки заносов по четырём направлениям; друзья, кланы и клановые ивенты — следующий слой концепта</div>
+  <div class="icallout"><b>Прецедент из соседней вертикали.</b> «Пульс» — соцсеть инвесторов внутри Т-Инвестиций: лента сделок, авторы, подписки поверх брокерского счёта. Т-Банк развивает её как ключевой драйвер вовлечения розничных инвесторов и расширяет до соцсети «для всех»${SUP(20)}${SUP(21)} — самое близкое к нам доказательство, что социальная динамика превращает «скучный» финансовый продукт в ежедневную привычку. Из-за него же прототип сменил имя: рабочее «Pulse» оказалось занято — теперь мы «Импульс».</div>
+</section>`;
+const INSET_GAMI = `
+<section class="inset" id="ins-gami">
+  <span class="ik">Врезка · система геймификации</span>
+  <h3>Геймификация целиком: от дейликов до косметики профиля</h3>
+  <p class="d-body">Стрик, капсула и сезонный пропуск из модулей выше складываются в один конвейер прогресса. Топливо — ежедневные действия; на выходе — награды, каждая из которых возвращает в продукт: фрибет — в ставку, фриспины — в игры, косметика — в профиль и соцслой.</p>
+  <div class="schemerow">
+    <div class="snode" style="--c:#b07a0e"><div class="si">📅</div><b>ДЕЙЛИКИ · СТРИК</b><p>квесты дня, прогноз дня, серия визитов</p></div>
+    <div class="sarr"><b>→</b>копят очки</div>
+    <div class="snode" style="--c:#2b5cff"><div class="si">🎫</div><b>БАТЛ-ПАСС</b><p>уровни сезона, бесплатная и платная ветки</p></div>
+    <div class="sarr"><b>→</b>уровень = награда</div>
+    <div class="snode" style="--c:#7a3fd1"><div class="si">💊</div><b>ЛУТБОКС-КАПСУЛА</b><p>reveal-анимация, кэша внутри нет</p></div>
+    <div class="sarr"><b>→</b>выпадает</div>
+    <div class="snode" style="--c:#0f8f7a"><div class="si">🎁</div><b>НАГРАДЫ</b><p>фрибет · фриспины · бонуска в слотах · страховка ставки · очки пропуска · косметика</p></div>
+  </div>
+  <div class="schemerow" style="max-width:620px">
+    <div class="snode" style="--c:#e8442e"><div class="si">🧑‍🎨</div><b>АВАТАР</b><p>рисованный персонаж, на которого надевается выпавшая косметика — паттерн Reddit</p></div>
+    <div class="sarr"><b>→</b>виден всем</div>
+    <div class="snode" style="--c:#2b5cff"><div class="si">💬</div><b>СОЦСЛОЙ</b><p>аватар и статус видны друзьям, клану и в лидербордах — мостик к врезке про социальную динамику</p></div>
+  </div>
+  <div class="sloop"><span style="font-size:15px">⟲</span> награды тратятся в играх и ставках, активность снова копит очки — конвейер замыкается</div>
+  <div class="icallout"><b>Две оговорки прямым текстом.</b> Первая: это черновой каркас — экономика очков, веса наград и шансы лутбокса здесь не считались, схема фиксирует связи, а не баланс. Вторая: похожие механики в iGaming уже норма — операторы давно раздают лутбокс-награды за депозиты. Наш разворот в другом: награда привязана к активности и прогрессу сезона, а не к сумме депозита, и кэша в лутбоксе нет.</div>
+</section>`;
+
+function renderStory(){
+  $('#story').innerHTML = MECHS.map((m,i)=>`
+  <section class="mech" id="m-${m.id}" data-mid="${m.id}">
+    <div class="mhead"><span class="mnum">${String(i+1).padStart(2,'0')}</span>
+      <div><h2 class="mtitle">${m.name}</h2><div class="msub">${m.g} · ${m.tagline}</div></div></div>
+    <div class="hypo"><div class="hypk">Продуктовая гипотеза</div><div class="d-body">${m.hyp}</div></div>
+    <div class="origin"><div class="d-k" style="--klr:var(--violet)">Как мы к ней пришли</div><div class="d-body">${m.idea}</div></div>
+    <div class="origin"><div class="d-k" style="--klr:var(--blue)">Данные рисерча</div><div class="d-body">${m.data}</div></div>
+    <div class="duo">
+      <div><div class="d-k" style="--klr:var(--cyan)">Как выглядит и работает</div><div class="d-body">${m.what}</div></div>
+      <div class="demo" data-demo="${m.demo}"><div class="demobadge">живое демо</div><div class="demohost"></div></div>
+    </div>
+    <div class="trio">
+      <div><div class="d-k" style="--klr:var(--rose)">Примерная реализация</div><div class="d-body sm">${m.tech}</div></div>
+      <div><div class="d-k" style="--klr:var(--amber)">Примерные метрики</div>
+        <div class="mtags">${m.metrics.map(t=>`<span class="mtag ${t[1]||''}">${t[1]==='guard'?'🛡 ':(t[1]==='down'?'↓ ':'↑ ')}${t[0]}</span>`).join('')}</div></div>
+      <div><div class="d-k" style="--klr:var(--green)">Процессы и подводные камни</div><div class="d-body sm">${m.proc}</div></div>
+    </div>
+  </section>`).join('');
+  $('#m-onb').insertAdjacentHTML('afterend', INSET_PATH);
+  $('#m-copy').insertAdjacentHTML('afterend', INSET_SOCIAL);
+  $('#m-caps').insertAdjacentHTML('afterend', INSET_GAMI);
+  // ленивые демо: монтируем при приближении
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const d = e.target;
+      if(d.dataset.mounted) return;
+      d.dataset.mounted = '1';
+      DEMOS[d.dataset.demo](d.querySelector('.demohost'));
+      io.unobserve(d);
+    });
+  }, { rootMargin:'200px' });
+  $$('.demo[data-demo]').forEach(d=>io.observe(d));
+  // активная остановка метро
+  const io2 = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const id = e.target.dataset.mid;
+        $$('.stop').forEach(s=>s.classList.toggle('on', s.dataset.go === 'm-'+id));
+      }
+    });
+  }, { rootMargin:'-30% 0px -60% 0px' });
+  $$('.mech').forEach(s=>io2.observe(s));
+}
+window.addEventListener('scroll', ()=>{
+  const b = $('#backtop');
+  if(b) b.style.display = window.scrollY > 900 ? 'block' : 'none';
+});
+
+/* ================= МАТРИЦА ================= */
+const MX_COLS = [
+  ['Активация','Доля новичков, дошедших до первого содержательного действия (ставка/демо-спин)'],
+  ['D7 · CURR','Возвращаемость: доля вернувшихся на 7-й день; CURR — удержание уже активных'],
+  ['Длина сессии','Минуты и карточки за сессию'],
+  ['Действий/сессию','Ставки, спины, соц-действия за сессию'],
+  ['Кросс-селл','Доля игроков, активных в 2+ вертикалях'],
+  ['Виральность','Приглашения, шаринг, K-factor'],
+  ['ARPU · NGR','Деньги на игрока; следствие удержания, не цель каждой механики'],
+  ['Доверие · RG','NPS, жалобы, guardrail-метрики ответственной игры'],
+];
+const MX = { // 0..3
+  feed:[2,3,3,3,2,0,1,1], prob:[3,1,0,2,1,0,1,2], onb:[3,2,0,1,1,0,0,1],
+  pred:[1,2,2,2,3,1,2,0], casc:[1,1,2,2,2,0,2,0], crash:[0,1,2,3,1,0,2,0],
+  social:[0,2,2,2,0,2,0,1], copy:[1,2,1,2,2,3,1,0], live:[0,1,3,2,1,1,2,0],
+  streak:[0,3,1,2,1,0,2,0], caps:[0,2,0,1,0,0,0,0], rg:[1,1,0,0,0,0,1,3],
+};
+const CELLBG = ['transparent','rgba(43,92,255,.16)','rgba(43,92,255,.45)','#2b5cff'];
+function renderMatrix(){
+  const t = $('#mxTable');
+  t.innerHTML = `<tr><th>Механика</th>${MX_COLS.map(c=>`<th>${c[0]}</th>`).join('')}</tr>` +
+    MECHS.map(m=>`<tr data-row="${m.id}"><td data-open="${m.id}">${m.name}</td>` +
+      MX[m.id].map((v,i)=>`<td><span class="cell" style="background:${CELLBG[v]};${v===0?'border:1px dashed var(--line);':''}"
+        data-tip="<b>${m.name}</b> → ${MX_COLS[i][0]}: ${['влияние не ожидается','косвенный эффект','заметный эффект','ключевой эффект'][v]}.<br>${MX_COLS[i][1]}"></span></td>`).join('') + '</tr>').join('');
+  $$('#mxTable td[data-open]').forEach(td=>td.onclick = ()=>{ openTab('story'); setTimeout(()=>document.getElementById('m-'+td.dataset.open).scrollIntoView({behavior:'smooth'}), 60); });
+}
+
+/* ================= ВОРОНКА ================= */
+const FUNNEL = [
+  ['Привлечение', 100, ['copy','live','social'], 'Шарабельные карточки результатов, приглашения в клубы и пулы, стримы и co-watching — органика вместо закупки. Пре-лонч tap-to-earn остался за рамками продукта (механика привлечения, не удержания).'],
+  ['Активация', 82, ['onb','prob','feed'], 'Тёплая лента с первого экрана, язык процентов вместо коэффициентов, демо без регистрации, «момент ценности» после третьего прогноза.'],
+  ['Удержание', 64, ['streak','caps','feed','social','pred'], 'Стрик и лиги (ядро CURR), капсула дня, обучающаяся лента, треды под событиями, «портфельная» привычка следить за позициями.'],
+  ['Выручка', 38, ['pred','casc','crash','live','streak'], 'Кросс-селл трёх вертикалей из одной ленты, мем-рынки мелкими чеками, платная ветка пропуска. NGR — следствие удержания.'],
+  ['Виральность', 22, ['copy','social','caps'], 'Пулы и копи-беттинг зовут друзей по смыслу, а не за бонус; шаринг карточек и результата дня — сетка Wordle как образец.'],
+];
+function renderFunnel(){
+  $('#funnel').innerHTML = FUNNEL.map((f,i)=>`
+    <div class="fstage"><div class="fl">${f[0]}</div>
+      <div class="fb" data-f="${i}" style="width:${f[1]}%;background:${CH[i]}">${f[0]}</div></div>`).join('');
+  $$('.fb').forEach(b=>b.onclick = ()=>{
+    const f = FUNNEL[+b.dataset.f];
+    $('#fmechs').innerHTML = `<b style="color:${CH[+b.dataset.f]}">${f[0]}:</b> ` +
+      f[2].map(id=>{ const m = MECHS.find(x=>x.id===id); return `<b>${m.name}</b>`; }).join(' · ') +
+      `<br>${f[3]}`;
+    $$('#mxTable tr').forEach(tr=>tr.classList.toggle('hl', f[2].includes(tr.dataset.row)));
+  });
+}
+
+/* ================= ПРОЦЕССЫ ================= */
+const PITFALLS = [
+  ['Двусмысленный резолв мем-рынка','главный источник споров и репутационных пожаров. Правило и источник (оракул) пишутся до открытия рынка, а придумывать, прайсить и закрывать рынки — ежедневный редакционный цикл, как в медиа.'],
+  ['Микроставки и пулы множат мелкие экспозиции','лимиты рынка и игрока должен держать автоматический рисковый слой: ручной контроль за таким потоком не успевает.'],
+  ['«Продам верные прогнозы» в комментах','готовый канал скама: без модерации в реальном времени и норматива скорости реакции соцслой убивает доверие быстрее, чем создаёт.'],
+  ['XP-инфляция','обесценивает прогресс за пару сезонов. Экономику наград считают как валютную: сезоны, квесты и пул капсулы — еженедельная балансировка конфигами, а не разовая настройка.'],
+  ['Стример с «нарисованным» банкроллом','готовый скандал: честность балансов и условий эфира — часть бренда, а не мелкий шрифт контракта.'],
+  ['Слишком частые пуши','выключают канал навсегда: нужен бюджет уведомлений на игрока и A/B каждого триггера — канал берегут, как Duolingo.'],
+  ['KYC не в том месте воронки','слишком рано ломает активацию, слишком поздно — лицензию. Это настраиваемый по рынку баланс, а не константа продукта.'],
+  ['RG «для галочки»','виден и игрокам, и регулятору: пороги, бережные интервенции и отчётность работают, только если RG продуктовый — как виджет «Твоя неделя».'],
+  ['Новый поток в саппорт','язык вероятностей убирает вопрос «что значит кэф», но рождает «почему рынок закрыли так» — саппорту нужны готовые сценарии споров по резолву и выплатам долей пулов.'],
+];
+$('#procCards').innerHTML = PITFALLS.map(p=>`<div class="pitfall"><b>⚠ ${p[0]}</b> — ${p[1]}</div>`).join('');
+
+/* ================= TABS / TOOLTIP / PROTO ================= */
+function openTab(name){
+  $$('.tab').forEach(t=>t.classList.toggle('on', t.dataset.pane===name));
+  $$('.pane').forEach(p=>p.classList.toggle('on', p.id==='pane-'+name));
+  if(name==='proto') mountProto();
+  const tbs = document.querySelector('.tabs');
+  window.scrollTo({top: tbs ? tbs.offsetTop : 0});
+}
+$$('.tab').forEach(t=>t.onclick = ()=>openTab(t.dataset.pane));
+document.addEventListener('click', e=>{
+  const g = e.target.closest('[data-gosrc]');
+  if(g){ e.preventDefault(); openTab('story'); let goTries = 0;
+    const go = ()=>{ document.getElementById('sources').scrollIntoView(); if(++goTries < 7) setTimeout(go, 220); };
+    setTimeout(go, 60); }
+});
+const tip = $('#tip');
+document.addEventListener('mouseover', e=>{
+  const t = e.target.closest('[data-tip]');
+  if(!t){ tip.style.display='none'; return; }
+  tip.innerHTML = t.dataset.tip;
+  tip.style.display = 'block';
+  const r = t.getBoundingClientRect();
+  tip.style.left = Math.min(window.innerWidth - 320, Math.max(10, r.left)) + 'px';
+  tip.style.top = (r.bottom + 9) + 'px';
+});
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-tip]');
+  if(t){ tip.innerHTML = t.dataset.tip; tip.style.display='block';
+    const r = t.getBoundingClientRect();
+    tip.style.left = Math.min(window.innerWidth - 320, Math.max(10, r.left)) + 'px';
+    tip.style.top = (r.bottom + 9) + 'px';
+  } else if(!e.target.closest('#tip')) tip.style.display='none';
+});
+let protoMounted = false;
+function fitPhone(){
+  const wrap = document.querySelector('.phwrap'), fr = document.querySelector('.phoneframe');
+  if(!wrap || !fr) return;
+  const tabs = document.querySelector('.tabs');
+  const availH = window.innerHeight - (tabs ? tabs.offsetHeight : 56) - 40;
+  const availW = wrap.parentElement.clientWidth || 402;
+  const k = Math.min(1, availH / 854, availW / 402);
+  fr.style.transform = 'scale(' + k + ')';
+  wrap.style.width = Math.round(402 * k) + 'px';
+  wrap.style.height = Math.round(854 * k) + 'px';
+}
+window.addEventListener('resize', fitPhone);
+function mountProto(){
+  fitPhone();
+  if(protoMounted) return;
+  protoMounted = true;
+  $('#protoFrame').src = 'prototype.html';
+}
+
+/* ================= ДЕМО ================= */
+const DEMOS = {};
+const TAGCOL = { 'футбол':CH[0], 'казино':CH[1], 'прогнозы':CH[2], 'киберспорт':CH[3], 'социальное':CH[4] };
+DEMOS.feed = host => {
+  const w = { 'футбол':5, 'прогнозы':4, 'казино':3, 'киберспорт':3, 'социальное':2 };
+  host.innerHTML = `
+    <div class="btnrow">
+      <button class="dbtn" data-s="футбол:2">❤️ лайк футболу</button>
+      <button class="dbtn" data-s="казино:2">❤️ лайк казино</button>
+      <button class="dbtn neg" data-s="прогнозы:-3">👎 дизлайк прогнозам</button>
+      <button class="dbtn neg" data-s="футбол:-3">👎 дизлайк футболу</button>
+    </div>
+    <div class="wbars"></div>
+    <div class="dots10"><span class="cap">Следующие 10 карточек:</span></div>`;
+  const render = ()=>{
+    const max = Math.max(...Object.values(w), 1);
+    host.querySelector('.wbars').innerHTML = Object.entries(w).map(([t,v])=>`
+      <div class="wbar"><span class="lab">${t}</span>
+        <span class="tr"><i style="width:${Math.max(3, v/max*100)}%;background:${TAGCOL[t]}"></i></span>
+        <span class="val">${v}</span></div>`).join('');
+    const bag = [];
+    Object.entries(w).forEach(([t,v])=>{ for(let i=0;i<Math.max(1,v);i++) bag.push(t); });
+    const dots = host.querySelector('.dots10');
+    dots.querySelectorAll('span:not(.cap)').forEach(d=>d.remove());
+    for(let i=0;i<10;i++){
+      const t = bag[Math.floor(Math.random()*bag.length)];
+      dots.insertAdjacentHTML('beforeend', `<span title="${t}" style="background:${TAGCOL[t]}"></span>`);
+    }
+  };
+  host.querySelectorAll('.dbtn').forEach(b=>b.onclick = ()=>{
+    const [t,d] = b.dataset.s.split(':');
+    w[t] = Math.max(0, w[t] + (+d));
+    render();
+  });
+  render();
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Тот же контур, что в прототипе: явный сигнал меняет вес тега, вес — состав выдачи. Дизлайк «весит» больше лайка — негативный сигнал надёжнее.</div>');
+};
+DEMOS.prob = host => {
+  host.innerHTML = `<input type="range" class="sld" min="105" max="1200" value="240">
+    <div class="kv">
+      <div><b class="k1">2,40</b><span>коэффициент (так у букмекера)</span></div>
+      <div><b class="k2" style="color:var(--lime)">42%</b><span>шанс (так у нас)</span></div>
+      <div><b class="k3">◈240</b><span>вернётся со ◈100</span></div>
+      <div><b class="k4" style="color:var(--muted)">4,8%</b><span>маржа внутри</span></div>
+    </div>`;
+  const upd = v=>{
+    const k = v/100, p = Math.round(100/k*0.95), pay = Math.round(100*k);
+    host.querySelector('.k1').textContent = k.toFixed(2).replace('.',',');
+    host.querySelector('.k2').textContent = p + '%';
+    host.querySelector('.k3').textContent = '◈' + pay;
+  };
+  host.querySelector('.sld').oninput = e=>upd(+e.target.value);
+  upd(240);
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Двигай слайдер: одна и та же математика, два языка. «Шанс 42% → ◈100 вернутся как ◈240» не требует обучения — «кэф 2,40» требует.</div>');
+};
+DEMOS.onb = host => {
+  const picks = new Set();
+  let exp = false;
+  host.innerHTML = `<div class="btnrow" style="margin-bottom:8px">
+      <button class="dbtn xno">🌱 я новенький</button>
+      <button class="dbtn xyes">🎯 опыт есть</button>
+    </div>
+    <div class="btnrow">${['киберспорт','футбол','прогнозы','казино'].map(t=>`<button class="dbtn" data-t="${t}">${t}</button>`).join('')}</div>
+    <div class="dots10"><span class="cap">Первый экран ленты:</span></div>`;
+  const render = ()=>{
+    let bag = picks.size ? [...picks] : (exp ? ['футбол','казино','прогнозы','киберспорт'] : ['казино','казино','футбол','киберспорт']);
+    if(!exp){ bag = bag.filter(t=>t !== 'прогнозы'); if(!bag.length) bag = ['казино']; }
+    const dots = host.querySelector('.dots10');
+    dots.querySelectorAll('span:not(.cap)').forEach(d=>d.remove());
+    for(let i=0;i<10;i++){
+      const t = bag[Math.floor(Math.random()*bag.length)];
+      dots.insertAdjacentHTML('beforeend', `<span title="${t}" style="background:${TAGCOL[t]||CH[4]}"></span>`);
+    }
+  };
+  const setExp = v=>{
+    exp = v;
+    const y = host.querySelector('.xyes'), n = host.querySelector('.xno');
+    y.style.borderColor = v ? CH[3] : ''; y.style.color = v ? CH[3] : '';
+    n.style.borderColor = v ? '' : CH[3]; n.style.color = v ? '' : CH[3];
+    render();
+  };
+  host.querySelector('.xyes').onclick = ()=>setExp(true);
+  host.querySelector('.xno').onclick = ()=>setExp(false);
+  host.querySelectorAll('[data-t]').forEach(b=>b.onclick = ()=>{
+    const t = b.dataset.t;
+    picks.has(t) ? picks.delete(t) : picks.add(t);
+    b.style.borderColor = picks.has(t) ? 'var(--lime)' : '';
+    b.style.color = picks.has(t) ? 'var(--lime)' : '';
+    render();
+  });
+  setExp(false);
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Два рычага старта: ответ про опыт задаёт базовую сборку (новичку — мини-игры и казуальные форматы, опытному — микс со ставками), интересы её раскрашивают. Рынки предсказаний в стартовый экран не попадают — они откроются на уровне 2.</div>');
+};
+DEMOS.pred = host => {
+  let prob = 34, entry = null, timer = null;
+  host.innerHTML = `<div style="font-weight:800;font-size:13.5px">Снег в Минске до 15 ноября?</div>
+    <div class="posdemo"><b class="pr" style="color:var(--cyan)">34%</b>
+      <div style="flex:1"><div class="pl" style="font-size:12px;color:var(--muted)">цена «ДА» · живая</div>
+      <div class="pnl" style="font-weight:800;font-size:13px">—</div></div>
+      <button class="playb act">Купить ДА · ◈100</button></div>
+    <div class="pmline"><span style="color:var(--green)">▲ 412 позиций на ДА</span> · <span style="color:var(--rose)">▼ 287 на НЕТ</span> · банк ◈64 000</div>`;
+  const pr = host.querySelector('.pr'), pnl = host.querySelector('.pnl'), btn = host.querySelector('.act');
+  const tick = ()=>{
+    prob = Math.max(4, Math.min(96, prob + (Math.random()*5-2.4)));
+    pr.textContent = Math.round(prob) + '%';
+    if(entry){
+      const val = 100 * prob/entry * 0.97;
+      pnl.innerHTML = `позиция: <span style="color:${val>=100?'var(--green)':'var(--red)'}">◈${Math.round(val)}</span>`;
+    }
+  };
+  timer = setInterval(tick, 900);
+  btn.onclick = ()=>{
+    if(!entry){ entry = prob; btn.textContent = 'Продать'; pnl.textContent = 'позиция: ◈100'; }
+    else {
+      const val = Math.round(100*prob/entry*0.97);
+      btn.disabled = true; btn.textContent = `Продано: ◈${val}`;
+      clearInterval(timer);
+    }
+  };
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Ставка как позиция: цена двигается, выйти можно в любой момент. Это язык портфеля, а не купона — и готовая механика кэшаута.</div>');
+};
+DEMOS.casc = host => {
+  const SY = ['🍬','🍇','🍒','🍋','💎','⭐','🫐'];
+  host.innerHTML = `<div class="btnrow" style="margin-bottom:4px">
+      <span style="font-size:11px;color:var(--faint);font-weight:700;align-self:center">СТАВКА СПИНА</span>
+      <button class="dbtn cst sel" data-s="10">◈10</button><button class="dbtn cst" data-s="25">◈25</button><button class="dbtn cst" data-s="50">◈50</button></div>
+    <div class="mgrid">${Array.from({length:24},()=>`<div class="mcell">${SY[Math.floor(Math.random()*7)]}</div>`).join('')}</div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:12px"><button class="playb sp">Спин · ◈10</button><b class="res" style="font-size:12.5px;color:var(--muted)"></b></div>`;
+  const cells = [...host.querySelectorAll('.mcell')];
+  let busy = false, st = 10;
+  host.querySelectorAll('.cst').forEach(c=>c.onclick = ()=>{
+    st = +c.dataset.s;
+    host.querySelectorAll('.cst').forEach(x=>x.classList.toggle('sel', x===c));
+    host.querySelector('.sp').textContent = 'Спин · ◈' + st;
+  });
+  host.querySelector('.sp').onclick = async ()=>{
+    if(busy) return; busy = true;
+    const res = host.querySelector('.res');
+    let board = cells.map(()=>SY[Math.floor(Math.random()*7)]);
+    cells.forEach((c,i)=>{ c.className='mcell fall'; c.textContent = board[i]; });
+    await new Promise(r=>setTimeout(r,320));
+    let wave = 0, pts = 0;
+    while(wave < 6){
+      const cnt = {}; board.forEach(s=>cnt[s]=(cnt[s]||0)+1);
+      const pop = Object.keys(cnt).filter(s=>cnt[s]>=5);
+      if(!pop.length) break;
+      wave++;
+      let popped = 0;
+      cells.forEach((c,i)=>{ if(pop.includes(board[i])){ c.className='mcell pop'; popped++; } });
+      pts += popped * wave;
+      res.textContent = wave===1 ? 'каскад!' : `цепь ×${wave}!`;
+      res.style.color = 'var(--blue)';
+      await new Promise(r=>setTimeout(r,420));
+      cells.forEach((c,i)=>{ if(pop.includes(board[i])){ board[i]=SY[Math.floor(Math.random()*7)]; c.className='mcell fall'; c.textContent=board[i]; } });
+      await new Promise(r=>setTimeout(r,330));
+      cells.forEach(c=>c.className='mcell');
+    }
+    if(wave){ const win = Math.round(pts*st/5); res.textContent = `цепь ×${wave} → выигрыш ◈${win}`; res.style.color='var(--green)'; }
+    else { res.textContent = `пусто · −◈${st}`; res.style.color = 'var(--muted)'; }
+    busy = false;
+  };
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Ставка спина — настраиваемая, выигрыш зависит от длины цепи. В мини-демо порог снижен — пять и больше одинаковых; в прототипе семь и больше на поле 6×5, каскад выпадает примерно в трети спинов. В ленте такое поле живёт как превью: полная игра — отдельным экраном поверх iframe провайдера.</div>');
+};
+DEMOS.crash = host => {
+  host.innerHTML = `<div style="display:flex;align-items:center;gap:14px;justify-content:space-between">
+      <b class="m" style="font-family:var(--disp);font-size:24px;color:var(--blue);min-width:92px">1.00×</b>
+      <button class="playb go">Старт</button></div>
+    <div class="dsvg" style="position:relative">
+      <svg viewBox="0 0 300 120" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+        <path class="cl" d="" fill="rgba(43,92,255,.08)" stroke="none"/>
+        <path class="cs" d="" fill="none" stroke="#2b5cff" stroke-width="2"/></svg>
+      <div class="rk" style="position:absolute;left:4%;top:82%;font-size:16px;transform:translate(-50%,-50%) rotate(-20deg)">🚀</div>
+    </div>`;
+  const m = host.querySelector('.m'), btn = host.querySelector('.go');
+  const cs = host.querySelector('.cs'), cl = host.querySelector('.cl'), rk = host.querySelector('.rk');
+  let t0=null, mult=1, crashAt=0, fly=false, tt=0, pts=[];
+  const stop = cashed => {
+    clearInterval(t0); fly=false;
+    btn.textContent = cashed ? 'Ещё раз' : 'Ещё раз';
+    if(cashed){ m.style.color='var(--green)'; m.textContent = mult.toFixed(2)+'× ✓'; }
+    else { m.style.color='var(--rose)'; m.textContent='💥 '+mult.toFixed(2)+'×'; rk.textContent='💥'; }
+  };
+  btn.onclick = ()=>{
+    if(fly){ stop(true); return; }
+    mult=1; tt=0; pts=[]; fly=true;
+    crashAt = Math.max(1, Math.min(30, 0.95/Math.random()));
+    btn.textContent='ЗАБРАТЬ'; m.style.color='var(--blue)'; rk.textContent='🚀';
+    t0 = setInterval(()=>{
+      tt += 0.05; mult = Math.exp(tt*0.5);
+      m.textContent = mult.toFixed(2)+'×';
+      pts.push([tt, mult]);
+      const mx = Math.max(2.4, tt), my = Math.max(2.4, mult);
+      const coords = pts.map(q=>[q[0]/mx*292, 120 - (q[1]-1)/my*108]);
+      const d = coords.map((c,i)=>`${i?'L':'M'}${c[0].toFixed(1)},${c[1].toFixed(1)}`).join(' ');
+      cs.setAttribute('d', d);
+      const last = coords[coords.length-1];
+      cl.setAttribute('d', d + ` L${last[0].toFixed(1)},120 L0,120 Z`);
+      rk.style.left = (last[0]/300*100)+'%'; rk.style.top = (last[1]/120*100)+'%';
+      if(mult>=crashAt) stop(false);
+    }, 55);
+  };
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Весь раунд — секунды, решение одно: когда выйти. Визуал любой — здесь ракета на чертёжной сетке, в прототипе — звёздное небо; механика та же.</div>');
+};
+DEMOS.social = host => {
+  let w = 5;
+  host.innerHTML = `<div class="btnrow"><button class="dbtn l">❤️ лайк</button><button class="dbtn neg d">👎 дизлайк</button></div>
+    <div class="wbars"><div class="wbar"><span class="lab">вес тега</span><span class="tr"><i style="width:50%;background:${CH[0]}"></i></span><span class="val">5</span></div></div>`;
+  const bar = host.querySelector('.tr i'), val = host.querySelector('.val');
+  const upd = ()=>{ bar.style.width = Math.max(3, w/10*100)+'%'; val.textContent = w; };
+  host.querySelector('.l').onclick = ()=>{ w = Math.min(10, w+2); upd(); };
+  host.querySelector('.d').onclick = ()=>{ w = Math.max(0, w-3); upd(); };
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Лайк +2, дизлайк −3: негативный сигнал сильнее — он честнее. Комментарии в прототипе — тред под карточкой с живыми ответами; потрогай во вкладке «Прототип».</div>');
+};
+DEMOS.pool = host => {
+  host.innerHTML = `
+  <div class="cps1">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;border:1.5px solid ${CH[2]};display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto">🦁</div>
+      <div><b style="font-size:13px">Макс П.</b><div style="font-size:11px;color:var(--muted)">точность 54% · 214 прогнозов · суммы не публикуются</div></div>
+    </div>
+    <div style="font-size:12px;margin:9px 0;padding:8px 10px;border:1px dashed var(--line2);border-radius:8px">Экспресс ×10,9 · Атлас П1 + Соколов П1 + Spectre 2:0</div>
+    <button class="playb cpy">Повторить купон · ◈100</button>
+  </div>
+  <div class="cps2" style="display:none">
+    <div style="font-size:13px;font-weight:700">Клуб собирает экспресс ×6,1 · по ◈100</div>
+    <div class="wbars" style="margin-top:10px"><div class="wbar"><span class="lab">собрано</span>
+      <span class="tr"><i class="pb" style="width:75%;background:var(--green)"></i></span><span class="val pv">3/4</span></div></div>
+    <button class="playb jn" style="margin-top:10px">Войти в пул · ◈100</button>
+  </div>
+  <div class="cps3" style="display:none;text-align:center">
+    <div style="font-size:28px">🐝</div>
+    <div style="font-family:var(--disp);font-weight:900;font-size:24px;color:${CH[0]}">×36,4</div>
+    <div style="font-size:12.5px;margin-top:4px">занос у <b>Lena</b> в Juice Rush — <b style="color:${CH[3]}">+◈3${'\u00A0'}640</b></div>
+    <button class="playb bw3" style="margin-top:10px">Играть в Juice Rush</button>
+    <div style="font-size:10.5px;color:var(--muted);margin-top:8px">витрина показывает только выигрыши — честный итог в портфеле</div>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center;margin-top:10px">
+    <i class="dd" data-n="1" style="width:7px;height:7px;border-radius:50%;background:${CH[0]};cursor:pointer"></i>
+    <i class="dd" data-n="2" style="width:7px;height:7px;border-radius:50%;background:${CH[0]};cursor:pointer;opacity:.3"></i>
+    <i class="dd" data-n="3" style="width:7px;height:7px;border-radius:50%;background:${CH[0]};cursor:pointer;opacity:.3"></i>
+  </div>`;
+  const slide = n => {
+    host.querySelector('.cps1').style.display = n===1 ? 'block' : 'none';
+    host.querySelector('.cps2').style.display = n===2 ? 'block' : 'none';
+    host.querySelector('.cps3').style.display = n===3 ? 'block' : 'none';
+    host.querySelectorAll('.dd').forEach((d,i)=>d.style.opacity = (i===n-1) ? 1 : .3);
+  };
+  host.querySelectorAll('.dd').forEach(d=>d.onclick = ()=>slide(+d.dataset.n));
+  host.querySelector('.cpy').onclick = e=>{
+    e.target.disabled = true; e.target.textContent = 'Купон скопирован ✓ · ставка той же суммой';
+    setTimeout(()=>slide(2), 900);
+  };
+  host.querySelector('.jn').onclick = e=>{
+    e.target.disabled = true; e.target.textContent = 'Пул собран — экспресс поставлен';
+    host.querySelector('.pb').style.width = '100%';
+    host.querySelector('.pv').textContent = '4/4';
+    setTimeout(()=>slide(3), 1100);
+  };
+  host.querySelector('.bw3').onclick = e=>{
+    e.target.disabled = true; e.target.textContent = 'В прототипе откроется шит игры';
+  };
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Три слоя соцдоказательства: копи — доверие к человеку, пул — общий результат, витрина заносов — наглядное «здесь выигрывают». Под заносом всегда подпись: витрина показывает только выигрыши.</div>');
+};
+DEMOS.live = host => {
+  let tLeft = 10, timer = null, bet = null;
+  host.innerHTML = `<div style="font-weight:800;font-size:13.5px">Угловой до 70-й минуты? <span class="tl" style="color:var(--amber)">10 с</span></div>
+    <div class="wbars" style="margin:8px 0 10px"><div class="wbar"><span class="lab">окно</span><span class="tr"><i class="wb" style="width:100%;background:var(--amber)"></i></span><span class="val"></span></div></div>
+    <div class="btnrow"><button class="dbtn y">ДА · 38%</button><button class="dbtn n">НЕТ · 62%</button></div>
+    <div class="lchat" style="margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;height:96px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;font-size:11.5px;line-height:1.35"></div>`;
+  const tl = host.querySelector('.tl'), wb = host.querySelector('.wb');
+  timer = setInterval(()=>{
+    tLeft--;
+    tl.textContent = Math.max(0,tLeft) + ' с';
+    wb.style.width = Math.max(0,tLeft)/10*100 + '%';
+    if(tLeft<=0){
+      clearInterval(timer);
+      host.querySelectorAll('.dbtn').forEach(b=>b.disabled = true);
+      tl.textContent = bet ? 'окно закрыто · ждём исход' : 'окно закрыто';
+    }
+  }, 1000);
+  host.querySelectorAll('.dbtn').forEach(b=>b.onclick = ()=>{ bet = b.textContent; host.querySelectorAll('.dbtn').forEach(x=>x.disabled=true); b.style.borderColor='var(--lime)'; });
+  const chat = host.querySelector('.lchat');
+  const MSGS = [
+    ['c','Кирилл','корнеры у них весь матч висят'],
+    ['b','Настя','ДА · ◈100'],
+    ['c','gg_wp','вратарь дважды выбил в аут, напрашивается'],
+    ['b','Олег','НЕТ · ◈300'],
+    ['c','Lena','окно закрывается, решайте'],
+    ['b','stas_88','ДА · ◈50'],
+    ['c','Макс','если не зайдёт — возьму тотал в следующем окне'],
+    ['b','dasha_q','ДА · ◈200'],
+  ];
+  let mi = 0;
+  const chTimer = setInterval(()=>{
+    if(!document.body.contains(host)){ clearInterval(chTimer); return; }
+    const m = MSGS[mi % MSGS.length]; mi++;
+    const row = document.createElement('div');
+    if(m[0]==='c') row.innerHTML = `<b style="color:${CH[0]}">${m[1]}:</b> ${m[2]}`;
+    else row.innerHTML = `<span style="font-weight:700;color:${CH[3]}">⚡ ${m[1]} ставит ${m[2]}</span>`;
+    chat.appendChild(row);
+    while(chat.children.length > 5) chat.removeChild(chat.firstChild);
+  }, 1400);
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Драматургия аукциона: окно закрывается по таймеру — действие нельзя отложить «на потом», а чат делает просмотр совместным: комментарии и ставки комнаты видны в моменте. В прототипе так работают комнаты матчей и слот-стрим.</div>');
+};
+DEMOS.streak = host => {
+  host.innerHTML = `<input type="range" class="sld" min="0" max="14" value="4">
+    <div class="kv">
+      <div><b class="d1">4</b><span>дней подряд</span></div>
+      <div><b class="d2" style="color:var(--amber)">середина</b><span>зона риска броска</span></div>
+      <div><b class="d3">❄️ 1</b><span>заморозка спасает день</span></div>
+    </div>`;
+  const upd = v=>{
+    host.querySelector('.d1').textContent = v;
+    const z = v<3 ? ['хрупкий','var(--red)'] : v<10 ? ['середина','var(--amber)'] : ['устойчивый','var(--green)'];
+    const d2 = host.querySelector('.d2'); d2.textContent = z[0]; d2.style.color = z[1];
+  };
+  host.querySelector('.sld').oninput = e=>upd(+e.target.value);
+  upd(4);
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Иллюстрация, не данные: у Duolingo после ~10 дней стрика отток падает кратно [1] — поэтому заморозки и «пауза без сгорания» защищают именно длинные стрики. Очки лиг — за активность, не за оборот.</div>');
+};
+DEMOS.caps = host => {
+  host.innerHTML = `<div style="display:flex;align-items:center;gap:18px">
+    <div class="capsule shake" style="width:64px;height:92px;position:relative;cursor:pointer;flex:0 0 auto">
+      <div class="caps-half caps-top" style="position:absolute;left:0;right:0;top:0;height:46px;border-radius:32px 32px 8px 8px;background:linear-gradient(160deg,#7aa0ff,#2b5cff 60%,#1c3db0);transition:transform .45s cubic-bezier(.3,1.4,.4,1)"></div>
+      <div class="caps-half caps-bot" style="position:absolute;left:0;right:0;bottom:0;height:46px;border-radius:8px 8px 32px 32px;background:linear-gradient(200deg,#ffc9a3,#e8442e 60%,#9c2410);transition:transform .45s cubic-bezier(.3,1.4,.4,1)"></div>
+      <div class="pz" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;opacity:0;transition:opacity .4s .2s"></div>
+    </div>
+    <div class="ct" style="font-size:13px;font-weight:700">Тапни по капсуле</div></div>
+    <style>@keyframes dshake{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}.capsule.shake{animation:dshake .6s infinite}</style>`;
+  const caps = host.querySelector('.capsule');
+  const prizes = [['❄️','заморозка стрика'],['🎰','5 фриспинов'],['🎟️','фрибет ◈50'],['🎫','+20 поинтов пропуска'],['⚡','+40 XP'],['🎨','стикер в коллекцию']];
+  let capsOpen = false, capsBusy = false;
+  const openCaps = ()=>{
+    caps.classList.remove('shake');
+    caps.querySelector('.caps-top').style.transform = 'translateY(-34px) rotate(-10deg)';
+    caps.querySelector('.caps-bot').style.transform = 'translateY(34px) rotate(8deg)';
+    const p = prizes[Math.floor(Math.random()*prizes.length)];
+    const pz = caps.querySelector('.pz'); pz.textContent = p[0]; pz.style.opacity = 1;
+    host.querySelector('.ct').textContent = p[1];
+    capsOpen = true;
+  };
+  const closeCaps = ()=>{
+    caps.querySelector('.caps-top').style.transform = '';
+    caps.querySelector('.caps-bot').style.transform = '';
+    caps.querySelector('.pz').style.opacity = 0;
+    capsOpen = false;
+  };
+  caps.onclick = ()=>{
+    if(capsBusy) return;
+    if(!capsOpen){ openCaps(); return; }
+    capsBusy = true;
+    closeCaps();
+    host.querySelector('.ct').textContent = '…';
+    setTimeout(()=>{ openCaps(); capsBusy = false; }, 520);
+  };
+  const box = (ico,t,s,c)=>`<div style="flex:1;border:1.5px solid ${c};border-radius:8px;padding:7px 3px;text-align:center;min-width:0"><div style="font-size:14px">${ico}</div><b style="font-size:9px;letter-spacing:.6px">${t}</b><div style="font-size:8.5px;color:var(--muted);margin-top:1px">${s}</div></div>`;
+  const arr = l=>`<div style="display:flex;flex-direction:column;justify-content:center;align-items:center;flex:0 0 auto;font-size:8px;color:var(--muted);gap:1px"><span style="font-size:12px;color:var(--text)">→</span>${l}</div>`;
+  host.insertAdjacentHTML('beforeend', `<div style="margin-top:14px">
+    <div style="font-size:9.5px;font-weight:800;letter-spacing:1.4px;color:var(--muted);margin-bottom:7px">СИСТЕМА МОТИВАЦИИ · ОВЕРВЬЮ</div>
+    <div style="display:flex;align-items:stretch;gap:4px">
+      ${box('🔥','СТРИК','дни подряд',CH[1])}${arr('качает')}
+      ${box('🎫','ПРОПУСК','уровни сезона',CH[0])}${arr('открывает')}
+      ${box('💊','КАПСУЛЫ','+доп. слоты',CH[2])}${arr('дают')}
+      ${box('⚡','НАГРАДЫ','фриспин · фрибет · XP',CH[3])}
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;margin-top:8px;font-size:10.5px;color:var(--muted)"><span style="font-size:14px;color:var(--text)">⟲</span> награды ведут в игры и прогнозы, визит продлевает стрик — петля замыкается</div>
+  </div>`);
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Reveal — язык кейсов CS2, но кэша внутри нет никогда. Капсула — узел петли мотивации: стрик качает пропуск, пропуск открывает капсулы, награды возвращают в продукт.</div>');
+};
+DEMOS.rg = host => {
+  let limit = 500, spent = 0, ses = 0;
+  host.innerHTML = `<div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700">
+      <span>Дневной лимит трат</span><b class="lv">◈500</b></div>
+    <input type="range" class="sld" min="200" max="1500" step="100" value="500">
+    <div class="wbars"><div class="wbar"><span class="lab">потрачено</span><span class="tr"><i class="sp" style="width:0%;background:var(--cyan)"></i></span><span class="val sv">◈0</span></div></div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><button class="playb bt">Ставка ◈200</button><b class="msg" style="font-size:12px;color:var(--muted)"></b></div>
+    <div style="border-top:1px dashed var(--line2);margin:12px 0 10px"></div>
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700"><span>Лимит сессии</span><b>45 мин/день</b></div>
+    <div class="wbars" style="margin-top:6px"><div class="wbar"><span class="lab">в продукте</span><span class="tr"><i class="ssp" style="width:0%;background:var(--amber)"></i></span><span class="val ssv">0 мин</span></div></div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:7px"><button class="playb st2">⏩ +15 минут</button><b class="smsg" style="font-size:12px;color:var(--muted)"></b></div>
+    <div style="border-top:1px dashed var(--line2);margin:12px 0 10px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700">
+      <span>Автовывод свыше ◈5 000</span>
+      <label style="display:flex;gap:6px;align-items:center;font-size:11px;cursor:pointer"><input type="checkbox" class="wtg" checked> вкл</label></div>
+    <div class="wmsg" style="font-size:11px;color:var(--green);margin-top:4px">✓ выигрыш уезжает сам, отмена вывода отключена — «отменил вывод и проиграл обратно» не случится</div>`;
+  const upd = ()=>{
+    host.querySelector('.lv').textContent = '◈'+limit;
+    host.querySelector('.sp').style.width = Math.min(100, spent/limit*100)+'%';
+    host.querySelector('.sv').textContent = '◈'+spent;
+  };
+  host.querySelector('.sld').oninput = e=>{ limit = +e.target.value; upd(); };
+  host.querySelector('.bt').onclick = ()=>{
+    const msg = host.querySelector('.msg');
+    if(spent + 200 > limit){ msg.textContent = '🛑 лимит: ставка не прошла'; msg.style.color = 'var(--red)'; }
+    else { spent += 200; msg.textContent = '✓ принята'; msg.style.color = 'var(--green)'; }
+    upd();
+  };
+  host.querySelector('.st2').onclick = ()=>{
+    if(ses >= 45) return;
+    ses = Math.min(45, ses + 15);
+    host.querySelector('.ssp').style.width = ses/45*100 + '%';
+    host.querySelector('.ssv').textContent = ses + ' мин';
+    const sm = host.querySelector('.smsg');
+    if(ses >= 45){ sm.textContent = '🌿 мягкий стоп: предложена пауза, стрик не сгорит'; sm.style.color = 'var(--amber)'; }
+  };
+  host.querySelector('.wtg').onchange = e=>{
+    const wm = host.querySelector('.wmsg');
+    if(e.target.checked){ wm.textContent = '✓ выигрыш уезжает сам, отмена вывода отключена — «отменил вывод и проиграл обратно» не случится'; wm.style.color = 'var(--green)'; }
+    else { wm.textContent = '⚠ выигрыш копится на балансе — так его проще проиграть обратно'; wm.style.color = 'var(--red)'; }
+  };
+  upd();
+  host.insertAdjacentHTML('beforeend','<div class="dm-note">Три контура: лимит трат живёт в кошельке и не обходится клиентом; лимит сессии предлагает паузу без потери стрика; правило вывода закрывает классическую ловушку отмены вывода.</div>');
+};
+
+
+/* init */
+renderMetro(); renderStory(); renderMatrix(); renderFunnel();
+$('#backtop').onclick = ()=>{ openTab('story'); $('#metro').scrollIntoView({behavior:'smooth', block:'center'}); };
+</script>
+</body>
+</html>
