@@ -720,8 +720,9 @@ body{background:#030309}
 .prevwrap .minimount{pointer-events:none}
 .prevwrap .machine{pointer-events:none}
 .minimount .mgwrap{padding-top:24px}
+.prevwrap .minimount .mgwrap{margin-top:10px}
 .gametile .playbtn{box-shadow:none}
-.prevtag{position:absolute;top:-8px;left:12px;z-index:5;font-size:9px;font-weight:800;letter-spacing:1px;
+.prevtag{position:absolute;top:0;left:12px;z-index:5;font-size:9px;font-weight:800;letter-spacing:1px;
   color:#0c1200;background:var(--amber);border-radius:6px;padding:3px 8px;text-transform:uppercase}
 .cgmount .cascwrap{margin:10px 0}
 /* ---------- онбординг: опыт + reward ---------- */
@@ -1001,6 +1002,18 @@ html.standalone .phone{border-radius:0;border:none;box-shadow:none}
 @media (min-width:520px){
   html.standalone .phone{width:420px;height:100dvh}
 }
+/* статус-бара в standalone нет — его место отдаём контенту */
+html.standalone{--top-h:62px}
+/* короткий экран: макет держит проектную высоту и вписывается масштабом (см. fitStandalone) */
+html.standalone.fit .phone{flex:none}
+html.standalone.fit body{background:var(--bg)}
+/* нижний лист не выше экрана: прокрутка и кнопка закрытия */
+#sheet{max-height:calc(100% - 44px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+#sheet::-webkit-scrollbar{display:none}
+.shhead{position:sticky;top:-12px;z-index:6;height:44px;margin:-12px -20px 0;background:inherit;display:flex;justify-content:center}
+.shhead .grab{margin:12px 0 0}
+.shclose{position:absolute;top:8px;right:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);
+  background:var(--surface2);color:var(--text);font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -1072,6 +1085,28 @@ html.standalone .phone{border-radius:0;border:none;box-shadow:none}
 <script>
 /* standalone против iframe: прямая вкладка не притворяется телефоном */
 try{ if(window.self === window.top) document.documentElement.classList.add('standalone'); }catch(e){ document.documentElement.classList.add('standalone'); }
+/* Макет рассчитан на высоту ~820px. На экране ниже телефон рендерится в этой высоте
+   и вписывается масштабом PHONE_K; координаты указателя внутри делим на PHONE_K. */
+let PHONE_K = 1;
+function fitStandalone(){
+  const root = document.documentElement, ph = document.getElementById('phone');
+  if(!root.classList.contains('standalone') || !ph) return;
+  const a = document.activeElement;
+  if(a && /^(INPUT|TEXTAREA)$/.test(a.tagName)) return; // клавиатура меняет высоту — не дёргаем масштаб
+  const MIN_H = 820, MAX_W = 440, vw = window.innerWidth, vh = window.innerHeight;
+  PHONE_K = Math.min(1, vh / MIN_H);
+  if(PHONE_K === 1){
+    root.classList.remove('fit');
+    ['width','height','transform'].forEach(p=>ph.style.removeProperty(p));
+    return;
+  }
+  root.classList.add('fit');
+  ph.style.width = Math.min(vw / PHONE_K, MAX_W) + 'px';
+  ph.style.height = (vh / PHONE_K) + 'px';
+  ph.style.transform = 'scale(' + PHONE_K + ')';
+}
+fitStandalone();
+window.addEventListener('resize', fitStandalone);
 /* ================= STATE ================= */
 const DEF = () => ({
   bal: 10000, xp: 0, stake: 100, oddsMode: false, exp: null, lvlToasted: 1, fastPref: false,
@@ -1138,11 +1173,14 @@ function snack(txt, actLabel, cb, ms=3600){
 }
 $('#snackAct').onclick = ()=>{ if(snackCb) snackCb(); $('#snack').style.display='none'; snackCb=null; clearTimeout(snackTimer); };
 function sheet(html){
-  $('#sheet').innerHTML = '<div class="grab"></div>' + html;
+  $('#sheet').innerHTML = '<div class="shhead"><div class="grab"></div><button class="shclose" aria-label="Закрыть">✕</button></div>' + html;
+  $('#sheet .shclose').onclick = closeSheet;
   $('#sheet').style.display = 'block'; $('#sheetveil').style.display = 'block';
+  $('#sheet').scrollTop = 0;
 }
 function closeSheet(){ $('#sheet').style.display='none'; $('#sheetveil').style.display='none'; }
 $('#sheetveil').onclick = closeSheet;
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#sheet').style.display==='block') closeSheet(); });
 function modal(html){ $('#modalveil').innerHTML = html; $('#modalveil').style.display = 'flex'; }
 function closeModal(){ $('#modalveil').style.display='none'; }
 $('#modalveil').addEventListener('click', e=>{ if(e.target.id==='modalveil') closeModal(); });
@@ -1594,7 +1632,7 @@ function cardPred(p, inFav){
   });
   box.addEventListener('pointermove', e=>{
     if(sx===null) return;
-    dx = e.clientX - sx;
+    dx = (e.clientX - sx) / PHONE_K;
     box.style.transform = `translateX(${dx}px) rotate(${dx/18}deg)`;
     node.querySelector('.stamp.yes').style.opacity = Math.max(0, Math.min(1, dx/70));
     node.querySelector('.stamp.no').style.opacity = Math.max(0, Math.min(1, -dx/70));
@@ -1685,7 +1723,7 @@ function cardCrash(){
   const explode = ()=>{
     flame.style.display = 'none'; rocket.style.opacity = 0;
     const rr = rocket.getBoundingClientRect(), bb = box.getBoundingClientRect();
-    const cx = rr.left - bb.left + 10, cy = rr.top - bb.top + 10;
+    const cx = (rr.left - bb.left) / PHONE_K + 10, cy = (rr.top - bb.top) / PHONE_K + 10;
     ['💥','✨','🔥','✨','💥','✨','🔥','✨'].forEach(ch=>{
       const p = el(`<div class="boomp">${ch}</div>`);
       p.style.left = cx+'px'; p.style.top = cy+'px';
@@ -3028,7 +3066,7 @@ document.addEventListener('click', e=>{
     pop.innerHTML = `<b>${why.dataset.note ? 'Как это устроено' : 'Почему я это вижу?'}</b><br>${why.dataset.why}`;
     pop.style.display = 'block';
     const r = why.getBoundingClientRect(), ph = $('#phone').getBoundingClientRect();
-    pop.style.top = (r.bottom - ph.top + 8) + 'px';
+    pop.style.top = ((r.bottom - ph.top) / PHONE_K + 8) + 'px';
     pop.style.right = '20px'; pop.style.left = 'auto';
     return;
   }
