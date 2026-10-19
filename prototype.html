@@ -996,17 +996,15 @@ body{background:#dde5f2}
 .rwbar{background:#e7edf8}
 .rwbar i{background:#2b5cff}
 
-/* standalone-вкладка (не iframe эксплейнера): без косплея телефона */
-html.standalone .sbar{display:none}
-html.standalone .phone{border-radius:0;border:none;box-shadow:none}
-@media (min-width:520px){
-  html.standalone .phone{width:420px;height:100dvh}
+/* standalone-вкладка на настоящем телефоне: без рамки и фейкового статус-бара,
+   его место отдаём контенту. На десктопе — телефон в рамке, как задумано. */
+@media (max-width:519px){
+  html.standalone .sbar{display:none}
+  html.standalone{--top-h:62px}
+  html.standalone.fit body{background:var(--bg)}
 }
-/* статус-бара в standalone нет — его место отдаём контенту */
-html.standalone{--top-h:62px}
 /* короткий экран: макет держит проектную высоту и вписывается масштабом (см. fitStandalone) */
 html.standalone.fit .phone{flex:none}
-html.standalone.fit body{background:var(--bg)}
 /* нижний лист не выше экрана: прокрутка и кнопка закрытия */
 #sheet{max-height:calc(100% - 44px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 #sheet::-webkit-scrollbar{display:none}
@@ -1083,26 +1081,28 @@ html.standalone.fit body{background:var(--bg)}
   <div id="notifpanel"></div>
 </div>
 <script>
-/* standalone против iframe: прямая вкладка не притворяется телефоном */
+/* standalone против iframe: прямая вкладка сама вписывает телефон в экран */
 try{ if(window.self === window.top) document.documentElement.classList.add('standalone'); }catch(e){ document.documentElement.classList.add('standalone'); }
-/* Макет рассчитан на высоту ~820px. На экране ниже телефон рендерится в этой высоте
-   и вписывается масштабом PHONE_K; координаты указателя внутри делим на PHONE_K. */
+/* Макет рассчитан на высоту: телефон в рамке на десктопе — 852px, на весь экран телефона — 820px
+   (без фейкового статус-бара). На экране ниже телефон рендерится в этой высоте и вписывается
+   масштабом PHONE_K; координаты указателя внутри делим на PHONE_K. */
 let PHONE_K = 1;
 function fitStandalone(){
   const root = document.documentElement, ph = document.getElementById('phone');
   if(!root.classList.contains('standalone') || !ph) return;
   const a = document.activeElement;
   if(a && /^(INPUT|TEXTAREA)$/.test(a.tagName)) return; // клавиатура меняет высоту — не дёргаем масштаб
-  const MIN_H = 820, MAX_W = 440, vw = window.innerWidth, vh = window.innerHeight;
-  PHONE_K = Math.min(1, vh / MIN_H);
+  const vw = window.innerWidth, vh = window.innerHeight, framed = vw >= 520;
+  const DESIGN_H = framed ? 852 : 820, MAX_W = 440;
+  PHONE_K = Math.min(1, (framed ? vh * 0.96 : vh) / DESIGN_H);
   if(PHONE_K === 1){
     root.classList.remove('fit');
     ['width','height','transform'].forEach(p=>ph.style.removeProperty(p));
     return;
   }
   root.classList.add('fit');
-  ph.style.width = Math.min(vw / PHONE_K, MAX_W) + 'px';
-  ph.style.height = (vh / PHONE_K) + 'px';
+  ph.style.width = (framed ? 400 : Math.min(vw / PHONE_K, MAX_W)) + 'px';
+  ph.style.height = (framed ? DESIGN_H : vh / PHONE_K) + 'px';
   ph.style.transform = 'scale(' + PHONE_K + ')';
 }
 fitStandalone();
