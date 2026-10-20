@@ -996,15 +996,28 @@ body{background:#dde5f2}
 .rwbar{background:#e7edf8}
 .rwbar i{background:#2b5cff}
 
-/* standalone-вкладка на настоящем телефоне: без рамки и фейкового статус-бара,
-   его место отдаём контенту. На десктопе — телефон в рамке, как задумано. */
+/* standalone-вкладка: телефон в рамке на любом экране — на узком те же правила, что от 520px */
 @media (max-width:519px){
-  html.standalone .sbar{display:none}
-  html.standalone{--top-h:62px}
-  html.standalone.fit body{background:var(--bg)}
+  html.standalone body{background:
+    linear-gradient(rgba(43,92,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(43,92,255,.05) 1px,transparent 1px),
+    linear-gradient(rgba(43,92,255,.1) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(43,92,255,.1) 1px,transparent 1px),#eef2f9;
+    background-size:8px 8px,8px 8px,40px 40px,40px 40px}
+  html.standalone .phone{width:400px;height:852px;border-radius:52px;border:1.5px solid var(--blue,#2b5cff);
+    box-shadow:10px 10px 0 rgba(43,92,255,.12)}
+  html.standalone .top{padding-top:16px;border-radius:52px 52px 0 0}
+  html.standalone .segwrap{top:calc(var(--top-h) + 6px)}
+  html.standalone .scroll{padding-top:calc(var(--top-h) + 16px)}
+  html.standalone .nav{border-radius:0 0 52px 52px}
+  html.standalone #onb{padding-top:58px;border-radius:52px}
+  html.standalone #sheet{border-radius:26px 26px 52px 52px}
 }
-/* короткий экран: макет держит проектную высоту и вписывается масштабом (см. fitStandalone) */
+/* экран меньше телефона: телефон держит размер 400×852 и вписывается масштабом (см. fitStandalone) */
 html.standalone.fit .phone{flex:none}
+/* карточка ленты: кнопки и текст не сжимаются; не влезает — сужаем превью (см. fitCardPreviews) */
+.cmid > *{flex-shrink:0}
+.cmid > .prevwrap{width:100%;margin-left:auto;margin-right:auto}
 /* нижний лист не выше экрана: прокрутка и кнопка закрытия */
 #sheet{max-height:calc(100% - 44px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 #sheet::-webkit-scrollbar{display:none}
@@ -1083,26 +1096,24 @@ html.standalone.fit .phone{flex:none}
 <script>
 /* standalone против iframe: прямая вкладка сама вписывает телефон в экран */
 try{ if(window.self === window.top) document.documentElement.classList.add('standalone'); }catch(e){ document.documentElement.classList.add('standalone'); }
-/* Макет рассчитан на высоту: телефон в рамке на десктопе — 852px, на весь экран телефона — 820px
-   (без фейкового статус-бара). На экране ниже телефон рендерится в этой высоте и вписывается
-   масштабом PHONE_K; координаты указателя внутри делим на PHONE_K. */
+/* Телефон в рамке рассчитан на 400×852. Если экран меньше, телефон держит этот размер
+   и вписывается масштабом PHONE_K; координаты указателя внутри делим на PHONE_K. */
 let PHONE_K = 1;
 function fitStandalone(){
   const root = document.documentElement, ph = document.getElementById('phone');
   if(!root.classList.contains('standalone') || !ph) return;
   const a = document.activeElement;
   if(a && /^(INPUT|TEXTAREA)$/.test(a.tagName)) return; // клавиатура меняет высоту — не дёргаем масштаб
-  const vw = window.innerWidth, vh = window.innerHeight, framed = vw >= 520;
-  const DESIGN_H = framed ? 852 : 820, MAX_W = 440;
-  PHONE_K = Math.min(1, (framed ? vh * 0.96 : vh) / DESIGN_H);
+  const W = 400, H = 852, vw = window.innerWidth, vh = window.innerHeight;
+  PHONE_K = Math.min(1, (vw - 20) / (W + 10), vh * 0.96 / H); // 10px — тень рамки
   if(PHONE_K === 1){
     root.classList.remove('fit');
     ['width','height','transform'].forEach(p=>ph.style.removeProperty(p));
     return;
   }
   root.classList.add('fit');
-  ph.style.width = (framed ? 400 : Math.min(vw / PHONE_K, MAX_W)) + 'px';
-  ph.style.height = (framed ? DESIGN_H : vh / PHONE_K) + 'px';
+  ph.style.width = W + 'px';
+  ph.style.height = H + 'px';
   ph.style.transform = 'scale(' + PHONE_K + ')';
 }
 fitStandalone();
@@ -1181,6 +1192,27 @@ function sheet(html){
 function closeSheet(){ $('#sheet').style.display='none'; $('#sheetveil').style.display='none'; }
 $('#sheetveil').onclick = closeSheet;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#sheet').style.display==='block') closeSheet(); });
+/* Карточка ленты фиксированной высоты: если содержимое не помещается, сужаем превью игры —
+   его высота растёт от ширины (сетки из квадратных клеток), а кнопки остаются целыми. */
+function fitCardPreview(mid){
+  const pw = mid.querySelector(':scope > .prevwrap');
+  if(!pw || !mid.clientHeight) return;
+  pw.style.maxWidth = '';
+  for(let i = 0; i < 4; i++){
+    const need = [...mid.children].reduce((s,c)=>{ const cs = getComputedStyle(c);
+      return s + c.offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom); }, 0);
+    const over = need + 4 - mid.clientHeight, w = pw.offsetWidth, h = pw.offsetHeight;
+    if(over <= 0 || h <= over + 40) return;
+    pw.style.maxWidth = Math.floor(w * (h - over) / h) + 'px';
+  }
+}
+const cardRO = new ResizeObserver(entries=>entries.forEach(e=>fitCardPreview(e.target)));
+const watchCards = node=>{ if(node.nodeType === 1) node.querySelectorAll('.cmid').forEach(m=>cardRO.observe(m)); };
+['#feedWrap','#favWrap'].forEach(sel=>{
+  const host = $(sel); watchCards(host);
+  new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(watchCards))).observe(host, { childList:true, subtree:true });
+});
+document.fonts && document.fonts.ready.then(()=>$$('#feedWrap .cmid, #favWrap .cmid').forEach(fitCardPreview));
 function modal(html){ $('#modalveil').innerHTML = html; $('#modalveil').style.display = 'flex'; }
 function closeModal(){ $('#modalveil').style.display='none'; }
 $('#modalveil').addEventListener('click', e=>{ if(e.target.id==='modalveil') closeModal(); });
