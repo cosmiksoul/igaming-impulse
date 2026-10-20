@@ -132,7 +132,7 @@ button{font-family:var(--font);color:var(--text)}
 .card.casino{--glow:rgba(255,94,125,.12)}
 .card.social{--glow:rgba(63,224,139,.12)}
 .card.gold{--glow:rgba(255,194,75,.14)}
-.chead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative;z-index:1}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;position:relative;z-index:1}
 .ctag{font-size:10px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px}
 .ctag .dot{width:6px;height:6px;border-radius:50%;background:var(--accent,var(--lime))}
 .chead-btns{display:flex;gap:6px}
@@ -375,6 +375,9 @@ input[type=range]{width:100%;accent-color:var(--cyan)}
 .gametile b{display:block;font-size:12.5px;margin-top:7px}
 .gametile span{font-size:10.5px;color:var(--muted)}
 .gametile .gh{position:absolute;top:9px;right:10px;font-size:13px}
+.gametile.gcat{display:flex;flex-direction:column}
+.gametile.gcat > b + span{display:block;margin-bottom:10px}
+.gametile.gcat .gcplay{margin-top:auto}
 /* onboarding */
 #onb{position:absolute;inset:0;z-index:70;background:
   radial-gradient(500px 400px at 80% -5%,rgba(143,111,255,.2),transparent 65%),
@@ -618,7 +621,7 @@ body{background:#030309}
 /* заголовки секций со звёздочкой */
 .h2::before{content:"✦ ";color:var(--cyan);font-size:12px;vertical-align:2px}
 /* ---------- CASCADE SLOT (match-3 feel) ---------- */
-.cascwrap{position:relative;border-radius:18px;padding:10px;margin:10px 0 12px;
+.cascwrap{position:relative;border-radius:18px;padding:18px 10px 10px;margin:10px 0 12px;
   border:1px solid transparent;
   background:linear-gradient(180deg,#141027,#0b0916) padding-box,
     linear-gradient(145deg,rgba(255,94,199,.5),rgba(182,124,255,.4) 40%,rgba(125,249,255,.4)) border-box;
@@ -696,8 +699,8 @@ body{background:#030309}
 .fv-top{display:flex;align-items:center;gap:9px;margin-bottom:9px}
 .fv-ico{width:32px;height:32px;border-radius:10px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
 .fv-tt{flex:1;min-width:0}
-.fv-t{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fv-sub{color:var(--muted);font-size:10.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fv-t{font-weight:800;font-size:13px;line-height:1.3}
+.fv-sub{color:var(--muted);font-size:10.5px;margin-top:2px;line-height:1.35}
 .fv-star{width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,194,75,.5);background:rgba(255,194,75,.12);
   cursor:pointer;font-size:13px;flex:none;color:var(--amber)}
 .fv-outs{display:flex;gap:6px}
@@ -719,8 +722,10 @@ body{background:#030309}
 .prevwrap .cascwrap{pointer-events:none;opacity:.92}
 .prevwrap .minimount{pointer-events:none}
 .prevwrap .machine{pointer-events:none}
-.minimount .mgwrap{padding-top:24px}
-.prevwrap .minimount .mgwrap{margin-top:10px}
+.minimount .mgwrap{padding-top:32px}
+.prevwrap .minimount > :first-child{margin-top:10px}
+.prevwrap .hopper{top:11px}
+.prevwrap .cascwrap,.prevwrap .machine{margin-bottom:0}
 .gametile .playbtn{box-shadow:none}
 .prevtag{position:absolute;top:0;left:12px;z-index:5;font-size:9px;font-weight:800;letter-spacing:1px;
   color:#0c1200;background:var(--amber);border-radius:6px;padding:3px 8px;text-transform:uppercase}
@@ -1017,7 +1022,7 @@ body{background:#dde5f2}
 html.standalone.fit .phone{flex:none}
 /* карточка ленты: кнопки и текст не сжимаются; не влезает — сужаем превью (см. fitCardPreviews) */
 .cmid > *{flex-shrink:0}
-.cmid > .prevwrap{width:100%;margin-left:auto;margin-right:auto}
+.cmid > .prevwrap{width:100%;margin:0 auto 12px}
 /* нижний лист не выше экрана: прокрутка и кнопка закрытия */
 #sheet{max-height:calc(100% - 44px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 #sheet::-webkit-scrollbar{display:none}
@@ -1165,6 +1170,8 @@ const ICO = {
 function clockTick(){ const d = new Date(); $('#clock').textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
 setInterval(clockTick, 15000);
 let toastGate = 0;
+/* буфер обмена может быть недоступен (встроенные браузеры) — тихо пропускаем */
+function copyText(t){ try{ const p = navigator.clipboard && navigator.clipboard.writeText(t); if(p) p.catch(()=>{}); }catch(e){} }
 function toast(txt, cls='', ico=''){
   const box = $('#toasts');
   while(box.children.length >= 2) box.firstChild.remove();
@@ -1298,8 +1305,7 @@ $('#bellBtn').onclick = ()=>{
   if(p.style.display === 'block'){ p.style.display='none'; return; }
   p.innerHTML = notifs.map((n,i)=>`<div class="nrow" data-n="${i}">
     <div class="ni">${n.ico}</div><div class="nt"><b>${esc(n.t)}</b><span>${esc(n.s)}</span></div>
-    <div class="nage">${esc(n.age)}</div></div>`).join('') +
-    `<div class="notice" style="margin:6px 0 8px">Умные уведомления: редкие и по делу — канал берегут, как в Duolingo</div>`;
+    <div class="nage">${esc(n.age)}</div></div>`).join('');
   p.style.display = 'block';
   S.notifRead = true; renderBell(); store.save();
 };
@@ -1431,9 +1437,9 @@ function maybeAskRegister(){
   setTimeout(openRegSheet, 1200);
 }
 function openRegSheet(){
-    sheet(`<div class="onb-k">момент ценности</div>
+    sheet(`<div class="onb-k">профиль</div>
       <div class="onb-h" style="font-size:19px">Неплохой старт! Сохраним прогресс?</div>
-      <div class="onb-p" style="margin-bottom:14px">Полный функционал продукта станет доступен после регистрации.</div>
+      <div class="onb-p" style="margin-bottom:14px">Профиль сохранит баланс, стрик и прогресс пропуска.</div>
       <input id="regName" placeholder="Как тебя называть?" style="width:100%;background:var(--surface2);border:1px solid var(--line2);border-radius:14px;color:var(--text);padding:13px 15px;font-size:14px;font-family:var(--font);outline:none;margin-bottom:12px">
       <button class="playbtn" id="regGo">Создать профиль</button>
       <button class="onb-skip" id="regLater">Позже</button>`);
@@ -1533,7 +1539,7 @@ function shareWin(id){
   </div>`);
   $('#shCopy').onclick = ()=>{
     const txt = `ИМПУЛЬС · ${win?'🟢':'🔴'} ${p.title}\n${p.side} · ${fmt(p.stake)} → ×${mult}\nimpulse.app/u/n13z`;
-    try{ navigator.clipboard.writeText(txt); }catch(e){}
+    try{ copyText(txt); }catch(e){}
     toast('Скопировано — вставь в чат', 'good', '📋');
     closeModal();
   };
@@ -1583,7 +1589,6 @@ function cardMatch(m, inFav){
       <div class="csub center" style="margin:-6px 0 12px">${esc(m.sub)}</div>
       <div class="outs">${outs}</div>
       ${stakeChips()}
-      <div class="notice">Вместо коэффициентов — шанс в процентах и сразу выплата</div>
     </div>
   </div></div>`);
   node.querySelectorAll('.out').forEach(btn=>{
@@ -1685,7 +1690,7 @@ function cardSlot(sl){
   const restStrip = mid => `<span>${pick(sl.syms)}</span><span>${mid}</span><span>${pick(sl.syms)}</span>`;
   const loopStrip = ()=> [...sl.syms, ...sl.syms].map(s=>`<span>${s}</span>`).join('');
   const node = el(`<div class="fcard"><div class="card casino" style="--accent:var(--rose)">
-    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--rose)"></span>🎰 слот · превью</div>
+    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--rose)"></span>🎰 слот</div>
       <div class="chead-btns">${whyBtn('Единый паттерн для всех игр ленты: превью в карточке, полная игра выезжает нижним листом со своими контролами. В проде полная игра — iframe RGS-провайдера.', 1)}</div></div>
     <div class="cmid">
       <div class="ctitle center">${esc(sl.name)}</div>
@@ -1880,7 +1885,7 @@ function cardDaily(){
         <button class="ghost" id="dShare" style="margin-top:8px">Поделиться результатом</button>`;
       body.querySelector('#dShare').onclick = ()=>{
         const grid = S.daily.correct ? '🟩🟩🟩' : '🟥⬛🟥';
-        try{ navigator.clipboard.writeText(`ИМПУЛЬС · Прогноз дня №37\n${grid}\nТочность за неделю: 67%\nimpulse.app/daily`); }catch(e){}
+        try{ copyText(`ИМПУЛЬС · Прогноз дня №37\n${grid}\nТочность за неделю: 67%\nimpulse.app/daily`); }catch(e){}
         toast('Скопировано — вставь в чат', 'good', '📋');
       };
     }
@@ -1958,13 +1963,12 @@ const BW_GAMES = [
   { name:'Neon Fruits', note:'три в ряд', lo:12, hi:12 },
   { name:'Космо-джекпот', note:'три в ряд', lo:12, hi:12 },
 ];
-const BW_NOTICE = '<div class="notice">Витрина показывает только выигрыши — проигрышей тут нет. Твой честный итог — в портфеле</div>';
 const BW_WHY = 'Лента чужих выигрышей — классика казино и стрим-культуры: чужой занос продаёт игру лучше баннера. Механика намеренно спорная: витрина показывает только выигрыши (survivorship bias), и win-promotion на лицензируемых рынках ограничен рекламными кодексами — поэтому рядом честная подпись, а частота таких карточек в ленте ограничена.';
 function bwShell(tagTxt, inner, key, tag, title){
   const node = el(`<div class="fcard"><div class="card gold" style="--accent:var(--amber)">
     <div class="chead"><div class="ctag"><span class="dot" style="background:var(--amber)"></span>${tagTxt}</div>
       <div class="chead-btns">${whyBtn(BW_WHY, 1)}</div></div>
-    <div class="cmid center">${inner}${BW_NOTICE}</div>
+    <div class="cmid center">${inner}</div>
   </div></div>`);
   return withBar(node, key, tag, title);
 }
@@ -1986,7 +1990,7 @@ function cardBigWin(kind){
     const mult = Math.round(95 / prob * 100) / 100;
     const stake = pick([50, 100, 250]);
     const win = Math.round(stake * mult);
-    const node = bwShell('🔮 точный прогноз · соцдоказательство', `
+    const node = bwShell('🔮 точный прогноз', `
       <div style="font-size:40px">${p[1]}</div>
       <div class="ctitle" style="font-family:var(--disp);font-size:32px;margin-top:4px">×${String(mult).replace('.', ',')}</div>
       <div class="csub" style="margin-top:6px"><b>${p[0]}</b> · «${side}» при ${prob}% — <b style="color:var(--green)">+${fmt(win)}</b></div>
@@ -2011,7 +2015,7 @@ function cardBigWin(kind){
     const stake = pick([50, 100, 250]);
     const win = Math.round(stake * mult);
     const legs = picks.map(x=>`${esc(x[1])} (${x[2]}%)`).join(' · ');
-    const node = bwShell('⚽ экспресс зашёл · соцдоказательство', `
+    const node = bwShell('⚽ экспресс зашёл', `
       <div style="font-size:40px">${p[1]}</div>
       <div class="ctitle" style="font-family:var(--disp);font-size:32px;margin-top:4px">×${String(mult).replace('.', ',')}</div>
       <div class="csub" style="margin-top:6px"><b>${p[0]}</b> · экспресс из 3 событий — <b style="color:var(--green)">+${fmt(win)}</b></div>
@@ -2023,7 +2027,7 @@ function cardBigWin(kind){
   }
   if(kind === 'league'){
     const pts = Math.round(rnd(60, 110));
-    const node = bwShell('🏅 взлёт в лиге · соцдоказательство', `
+    const node = bwShell('🏅 взлёт в лиге', `
       <div style="font-size:40px">${p[1]}</div>
       <div class="ctitle" style="font-family:var(--disp);font-size:32px;margin-top:4px">+${pts}</div>
       <div class="csub" style="margin-top:6px"><b>${p[0]}</b> · очков за неделю — зона повышения Серебряной лиги</div>
@@ -2037,7 +2041,7 @@ function cardBigWin(kind){
   const mult = Math.round(rnd(g.lo, g.hi) * 100) / 100;
   const stake = pick([50, 100, 250, 500]);
   const win = Math.round(stake * mult);
-  const node = bwShell('🏆 занос · соцдоказательство', `
+  const node = bwShell('🏆 занос', `
     <div style="font-size:40px">${p[1]}</div>
     <div class="ctitle" style="font-family:var(--disp);font-size:32px;margin-top:4px">×${String(mult).replace('.', ',')}</div>
     <div class="csub" style="margin-top:6px">занос у <b>${p[0]}</b> в ${esc(g.name)} — <b style="color:var(--green)">+${fmt(win)}</b></div>
@@ -2051,7 +2055,7 @@ function cardBigWin(kind){
 function cardOrb(){
   const left0 = Math.max(0, 20 - S.orbTaps);
   const node = el(`<div class="fcard"><div class="card gold" style="--accent:var(--amber)">
-    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--amber)"></span>⚡ зарядка · tap-to-earn</div>
+    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--amber)"></span>⚡ зарядка</div>
       <div class="chead-btns">${whyBtn('Механика Telegram-игр: простейший тап-фарм очков. В реальном продукте — пре-лонч и сквады по рефералам.', 1)}</div></div>
     <div class="cmid center">
       <div class="ctitle" style="font-size:19px">Прокачай ядро</div>
@@ -2061,7 +2065,6 @@ function cardOrb(){
         <button class="orb" ${left0===0?'disabled':''}>⚡</button>
         <div class="orbcnt"><span class="oleft">${left0}</span> тапов</div>
       </div>
-      <div class="notice">Сквады и фарм до релиза — виральный канал из крипто-игр</div>
     </div>
   </div></div>`);
   const orb = node.querySelector('.orb'), cnt = node.querySelector('.oleft');
@@ -2147,8 +2150,7 @@ function openComments(key, tag, title){
   sheet(`<div class="cmt-head">Комментарии</div>
     <div class="cmt-sub">${esc(title)}</div>
     <div class="cmt-list" id="cmtList"></div>
-    <div class="chatrow"><input id="cmtIn" placeholder="Написать комментарий…" maxlength="120"><button class="sendbtn" id="cmtSend">➤</button></div>
-    <div class="notice">Комменты — слой соцсети поверх события: спор и важность момента удерживают в карточке</div>`);
+    <div class="chatrow"><input id="cmtIn" placeholder="Написать комментарий…" maxlength="120"><button class="sendbtn" id="cmtSend">➤</button></div>`);
   renderCmtList(key, tag);
   const send = ()=>{
     const inp = $('#cmtIn'); const v = (inp.value || '').trim();
@@ -2208,7 +2210,7 @@ document.addEventListener('click', e=>{
   }
   if(act === 'cmt') openComments(key, tag, title);
   if(act === 'shr'){
-    try{ navigator.clipboard.writeText(`impulse.app/c/${key} — ${title}`); }catch(err){}
+    try{ copyText(`impulse.app/c/${key} — ${title}`); }catch(err){}
     toast('Ссылка на карточку скопирована', 'good', '🔗');
   }
   store.save();
@@ -2236,7 +2238,6 @@ function cardPool(){
         </div>
       </div>
       <button class="playbtn joinpool" ${S.pool.joined?'disabled':''}>${S.pool.joined ? 'Ты в пуле · ждём результат' : 'Войти в пул · ◈100 (доля ¼)'}</button>
-      <div class="notice">Общая ставка уходит, когда пул собран. Решение клуба — общее, риск — по долям</div>
     </div>
   </div></div>`);
   node.querySelector('.joinpool').onclick = (e)=>{
@@ -2317,11 +2318,11 @@ const CASC_NAME = 'Juice Rush';
 function cardCascade(){
   const liked = S.likedGames.includes(CASC_NAME);
   const node = el(`<div class="fcard"><div class="card casino" style="--accent:var(--rose)">
-    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--rose)"></span>🧃 каскадный слот · превью</div>
+    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--rose)"></span>🧃 каскадный слот</div>
       <div class="chead-btns">${whyBtn('Каскады — формат №1 у молодой аудитории. В ленте — превью собственной отрисовки: настоящий слот живёт в iframe провайдера и открывается отдельным экраном.', 1)}</div></div>
     <div class="cmid">
       <div class="ctitle center">${CASC_NAME}</div>
-      <div class="csub center">Превью · полная игра откроется отдельным экраном</div>
+      <div class="csub center">Семь одинаковых символов схлопываются — чем длиннее цепь, тем крупнее выигрыш</div>
       <div class="prevwrap"><span class="prevtag">превью</span><div class="cascmount"></div></div>
       <button class="playbtn cgo">Играть · ставка спина от ◈10</button>
       <div style="height:9px"></div>
@@ -2338,10 +2339,9 @@ function cardCascade(){
   return withBar(node, 'casc', 'казино', CASC_NAME);
 }
 function openCascadeGame(){
-  sheet(`<div class="onb-k">полная игра</div>
+  sheet(`<div class="onb-k">каскадный слот</div>
     <div class="onb-h" style="font-size:19px">${CASC_NAME}</div>
     <div class="csub" style="margin-bottom:6px">Семь и больше одинаковых символов схлопываются, новые падают сверху — чем длиннее цепь, тем выше выигрыш.</div>
-    <div class="protonote">🛠 В проде на этом месте — iframe RGS-провайдера; превью в ленте — своя отрисовка.</div>
     <div class="stakes" style="margin:0 0 4px"><span class="cap">СТАВКА СПИНА</span>
       <button class="chip cgs sel" data-s="10">10</button>
       <button class="chip cgs" data-s="25">25</button>
@@ -2455,7 +2455,7 @@ const MINI_PREV = {
 function cardMini(g){
   const liked = S.likedGames.includes(g.name);
   const node = el(`<div class="fcard"><div class="card casino" style="--accent:var(--violet)">
-    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--violet)"></span>${g.gi} мини-игра · превью</div>
+    <div class="chead"><div class="ctag"><span class="dot" style="background:var(--violet)"></span>${g.gi} мини-игра</div>
       <div class="chead-btns">${whyBtn('Инстант-жанр с одним решением на раунд. В ленте — превью собственной отрисовки, полная игра со ставкой открывается отдельным экраном.', 1)}</div></div>
     <div class="cmid">
       <div class="ctitle center">${g.name}</div>
@@ -2544,7 +2544,7 @@ function rwEntry(game, ago){
   const win = Math.round(st * m);
   return `<div class="rwrow"><span>${p[1]}</span><b>${p[0]}</b><span class="rwa">${ago}</span><span class="rww">×${String(m).replace('.',',')} · +${fmt(win)}</span></div>`;
 }
-const RW_HTML = '<div class="rwins"><div class="rwcap">🏆 Заносы игроков · витрина показывает только выигрыши</div><div class="rwlist"></div></div>';
+const RW_HTML = '<div class="rwins"><div class="rwcap">🏆 Заносы игроков</div><div class="rwlist"></div></div>';
 function rwInit(game){
   const list = $('#sheet .rwlist');
   if(!list) return;
@@ -2570,7 +2570,6 @@ function openSlotGame(name){
   sheet(`<div class="onb-k">слот</div>
     <div class="onb-h" style="font-size:19px">${esc(sl.name)}</div>
     <div class="csub" style="margin-bottom:6px">Три в ряд — ×12, пара — возврат ставки.</div>
-    <div class="protonote">🛠 В проде здесь — iframe RGS-провайдера; превью в ленте — своя отрисовка.</div>
     <div class="stakes" style="margin:0 0 8px"><span class="cap">СТАВКА</span>
       <button class="chip sgst sel" data-s="10">10</button><button class="chip sgst" data-s="25">25</button><button class="chip sgst" data-s="50">50</button></div>
     <div class="machine sgmach" style="overflow:hidden">
@@ -2639,8 +2638,8 @@ function openTrail(){
     <div class="csub" style="margin-bottom:10px">Каждый шаг умножает ставку, но тропа может хлопнуть. Забрать можно после любого шага — решай, когда хватит.</div>
     <div class="stakes" style="margin:0 0 8px"><span class="cap">СТАВКА</span>
       <button class="chip tgs sel" data-s="25">25</button><button class="chip tgs" data-s="50">50</button><button class="chip tgs" data-s="100">100</button></div>
-    <div class="mgwrap"><span class="hopper" style="left:-2%">🐥</span>
-      <div class="steprow">${MULTS.map((m,i)=>`<div class="stepc" data-i="${i}"><b>×${m.toFixed(1).replace('.',',')}</b><span>${Math.round(PSURV[i]*100)}%</span></div>`).join('')}</div></div>
+    <div class="mgwrap" style="padding-left:34px">
+      <div class="steprow" style="position:relative"><span class="hopper" style="left:-17px;top:-24px">🐥</span>${MULTS.map((m,i)=>`<div class="stepc" data-i="${i}"><b>×${m.toFixed(1).replace('.',',')}</b><span>${Math.round(PSURV[i]*100)}%</span></div>`).join('')}</div></div>
     <div class="btnrow2"><button class="playbtn tstep" style="flex:1.4">Шаг · ◈25</button><button class="ghost ttake" style="flex:1" disabled>Забрать</button></div>
     <button class="ghost shlike" style="width:100%;margin-top:8px"></button>
     <div class="notice mg-res tres"></div>${RW_HTML}`);
@@ -2825,7 +2824,6 @@ function cardPickem(p){
         <button class="oubtn over" data-side="больше" data-prob="${p.over}"><span class="arr">▲</span> БОЛЬШЕ · ${oddsTxt(p.over)}<small>◈100 → ${fmt(payO)}</small></button>
       </div>
       ${stakeChips()}
-      <div class="notice">Решение за пять секунд: одна цифра вместо росписи на сорок маркетов</div>
     </div>
   </div></div>`);
   node.querySelectorAll('.oubtn').forEach(btn=>{
@@ -3059,7 +3057,6 @@ function buildFavs(){
       setGameLike(h.dataset.unlike, false);
     });
   }
-  favWrap.appendChild(el(`<div class="notice">Компактный режим: несколько событий на экране, полная карточка — в ленте «Для тебя»</div>`));
   favWrap.querySelectorAll('[data-unfav]').forEach(b=>{
     b.onclick = ()=>{
       const [kind, key] = b.dataset.unfav.split(':');
@@ -3192,7 +3189,6 @@ function renderStreamRoom(r, st){
         : `<button class="pbtn yes">ДА · 36% <small>◈50 → ${fmt(50/0.36*0.95)}</small></button>
            <button class="pbtn no">НЕТ · 64% <small>◈50 → ${fmt(50/0.64*0.95)}</small></button>`}
       </div>
-      <div class="notice">Co-watching: стример крутит — комната ставит на его результат</div>
     </div>
     <div class="panel"><div class="h2" style="margin-top:0">Чат стрима</div>
       <div class="chat" id="chat"></div>
@@ -3311,7 +3307,7 @@ function gameTileCat(g){
   return `<div class="gametile gcat" data-game="${esc(g.name)}">
     <span class="gh" data-glike="${esc(g.name)}" title="На полку">${liked?'❤️':'🤍'}</span>
     <div class="gi">${g.gi}</div><b>${esc(g.name)}</b><span>${esc(g.sub)}</span>
-    <button class="playbtn gcplay" data-game="${esc(g.name)}" style="margin-top:9px;padding:8px 10px;font-size:12px;width:100%">Играть</button>
+    <button class="playbtn gcplay" data-game="${esc(g.name)}" style="padding:8px 10px;font-size:12px;width:100%">Играть</button>
   </div>`;
 }
 function renderGames(){
@@ -3320,13 +3316,12 @@ function renderGames(){
   const sc = $('#gamesScroll'); if(!sc) return;
   const stream = ROOMS.find(r=>r.stream);
   const liked = S.likedGames;
-  sc.innerHTML = `<div class="h2" style="margin-top:4px">Лайв-стрим <small>co-watching · ставь на спины</small></div>` +
+  sc.innerHTML = `<div class="h2" style="margin-top:4px">Лайв-стрим <small>ставь на спины стримера</small></div>` +
     roomRow(stream) +
-    (liked.length ? `<div class="h2">Избранные игры <small>${liked.length} · также во вкладке ★ в ленте</small></div>
+    (liked.length ? `<div class="h2">Избранные игры <small>${liked.length}</small></div>
       <div class="gamegrid">${liked.map(n=>gameTileCat(GAMES_CAT.find(x=>x.name===n) || {gi:'🎰', name:n, sub:'игра'})).join('')}</div>` : '') +
     `<div class="h2">Все игры <small>${GAMES_CAT.length}</small></div>
-    <div class="gamegrid">${GAMES_CAT.map(gameTileCat).join('')}</div>
-    <div class="notice">Каталог — для навигации. Персональный порядок и превью — в ленте «Для тебя»</div>`;
+    <div class="gamegrid">${GAMES_CAT.map(gameTileCat).join('')}</div>`;
   sc.querySelector('.room').onclick = ()=>{ activeRoom = stream.id; renderLive(); questBump('q3'); };
   sc.querySelectorAll('.gcplay').forEach(b=>b.onclick = e=>{ e.stopPropagation(); playGame(b.dataset.game); });
   sc.querySelectorAll('.gcat').forEach(t=>t.onclick = ()=>playGame(t.dataset.game));
@@ -3380,8 +3375,7 @@ function renderBets(){
     <div class="h2">Рынки предсказаний <small>${predsLocked() ? 'сложный формат · под замком' : PREDS.length + ' рынков'}</small></div>` +
     (predsLocked() ? lockHTML(UNLOCK.preds, '🔮 Рынки предсказаний') : '<div id="catPreds"></div>') +
     `<div class="h2">Пикемы <small>${picksLocked() ? 'сложный формат · под замком' : 'больше/меньше по игроку'}</small></div>` +
-    (picksLocked() ? lockHTML(UNLOCK.picks, '🎯 Пикемы по игрокам') : '<div id="catPicks"></div>') +
-    `<div class="notice">Каталог «ставки · предикт · лайв». Персональный порядок — в ленте «Для тебя»</div>`;
+    (picksLocked() ? lockHTML(UNLOCK.picks, '🎯 Пикемы по игрокам') : '<div id="catPicks"></div>');
   sc.querySelectorAll('.room:not(.locked)').forEach(row=>row.onclick = ()=>{ activeRoom = row.dataset.room; renderLive(); questBump('q3'); });
   const cf = sc.querySelector('#catFavs');
   if(cf){
@@ -3449,12 +3443,10 @@ function portfolioHTML(){
       <div class="rowline"><span class="mut">В открытых позициях</span><b>${fmt(open.reduce((s,p)=>s+p.stake,0))}</b></div>
       <div class="rowline"><span class="mut">P&L за сессию</span><b class="${pn>=0?'posup':'posdn'}">${pn>=0?'+':''}${fmt(pn)}</b></div>
       ${sparkSVG()}
-      <div class="notice">Ставки читаются как портфель позиций — язык брокерских приложений, честный P&L всегда на виду</div>
       <div class="btnrow2" style="margin-top:10px">
-        <button class="playbtn" disabled style="flex:1;opacity:.55">Пополнить баланс</button>
+        <button class="playbtn" id="portTop" style="flex:1">Пополнить</button>
         ${S.name ? '' : '<button class="ghost" id="portReg" style="flex:1">Регистрация</button>'}
       </div>
-      <div class="mut" style="font-size:10.5px;margin-top:7px;text-align:center">Пополнение отключено — это демо без денег${S.name ? '' : ' · регистрация сохраняет прогресс'}</div>
     </div>
     <div class="h2">Открытые позиции <small>${open.length}</small></div>
     <div class="panel">${open.length ? open.map(posRow).join('') : '<div class="mut center" style="padding:12px 0">Пока пусто — открой позицию в ленте</div>'}</div>
@@ -3476,7 +3468,6 @@ function leagueHTML(){
   return `<div class="panel" style="background:linear-gradient(160deg,rgba(143,111,255,.2),var(--surface) 65%)">
       <div class="h2" style="margin:0">🥈 Серебряная лига <small>неделя 41 · ты #${myRank}</small></div>
       <div class="mut" style="font-size:12px;margin-top:7px">До конца недели: 2 дн 14 ч · топ-3 переходят в Золотую, последние двое вылетают</div>
-      <div class="notice" style="text-align:left;margin-top:9px">Очки — за активность и участие, не за размер ставок</div>
     </div>
     <div class="panel">${all.map((r,i)=>`
       <div class="lrow ${r.me?'me':''} ${i<3?'zone-up':''} ${i>=all.length-2?'zone-dn':''}">
@@ -3496,13 +3487,13 @@ function renderSocial(){
       <button class="ghost" id="invite" style="margin-top:10px">Пригласить в клуб — скопировать ссылку</button>
     </div>`));
   sc.appendChild(cardPool());
-  sc.appendChild(el(`<div class="h2">Активность друзей <small>кудос — вместо лайка</small></div>`));
+  sc.appendChild(el(`<div class="h2">Активность друзей</div>`));
   const fr = el(`<div class="panel">${KUDOS.map((k,i)=>`<div class="rowline"><span style="min-width:0;padding-right:8px">${k.ico} <b>${esc(k.who)}</b> <span class="mut" style="font-size:12px">${esc(k.what)}</span></span><button class="chip kd2" data-i="${i}" style="white-space:nowrap">🔥 Кудос</button></div>`).join('')}</div>`);
   fr.querySelectorAll('.kd2').forEach(b=>b.onclick = e=>{ e.target.textContent = '🔥 Отправлено'; e.target.disabled = true; bump('социальное', 1); });
   sc.appendChild(fr);
   sc.appendChild(el(`<div class="h2">Прогнозисты <small>рейтинг — только точность</small></div>`));
   const tp = el(`<div class="panel">${TIPSTERS.map(t=>`<div class="rowline"><span style="min-width:0;padding-right:8px">${t.ava} <b>${esc(t.name)}</b> <span class="mut" style="font-size:11.5px">точность ${t.acc}% · ${t.n} прогнозов</span></span><button class="followbtn f2 ${S.follows.includes(t.name)?'on':''}" data-n="${esc(t.name)}">${S.follows.includes(t.name)?'✓':'Следить'}</button></div>`).join('')}
-    <div class="notice" style="margin-top:8px">Купоны прогнозистов с кнопкой «Повторить» приходят в ленту</div></div>`);
+    </div>`);
   tp.querySelectorAll('.f2').forEach(b=>b.onclick = ()=>{
     const n = b.dataset.n, i = S.follows.indexOf(n);
     if(i<0){ S.follows.push(n); b.classList.add('on'); b.textContent = '✓'; toast(`Теперь следишь за ${esc(n)}`, 'good', '👀'); bump('социальное', 2); }
@@ -3515,7 +3506,7 @@ function renderSocial(){
   lw.innerHTML = leagueHTML();
   sc.appendChild(lw);
   const inv = $('#invite');
-  if(inv) inv.onclick = ()=>{ try{ navigator.clipboard.writeText('impulse.app/club/friday-37'); }catch(e){} toast('Ссылка на клуб скопирована', 'good', '🔗'); };
+  if(inv) inv.onclick = ()=>{ try{ copyText('impulse.app/club/friday-37'); }catch(e){} toast('Ссылка на клуб скопирована', 'good', '🔗'); };
 }
 function renderLeague(){ if($('#scr-social').classList.contains('active')) renderSocial(); }
 
@@ -3555,7 +3546,6 @@ function renderProfile(){
         const mt = '\u00d7' + String(Math.round(m * 10) / 10).replace('.', ',');
         return `<div class="dchip ${d === Math.min(S.streak, 7) ? 'on' : ''} ${d < S.streak ? 'past' : ''}"><b>${d}${'\u00A0'}день</b><span>${mt}</span></div>`;
       }).join('')}</div>
-      <div class="mut" style="font-size:10.5px;margin-top:7px;text-align:center">Заходи чаще — получай больше опыта за задания</div>
       ${S.name ? '' : '<button class="ghost" id="regNow" style="margin-top:14px">Сохранить прогресс — создать профиль</button>'}
     </div>
     ${portfolioHTML()}
@@ -3570,7 +3560,7 @@ function renderProfile(){
           <div class="ti">${t.ico}</div><div class="tn">${t.name}</div><div class="txp">${t.xp} XP</div>
           ${un && !cl ? `<button data-claim="${i}">Забрать</button>` : ''}</div>`;
       }).join('')}</div>
-      <div class="mut" style="font-size:11px;margin:6px 0 4px">Платная ветка · 🔒 в прототипе закрыта</div>
+      <div class="mut" style="font-size:11px;margin:6px 0 4px">Платная ветка · 🔒</div>
       <div class="bp-track">${PREM.map((t,i)=>`<div class="tier prem"><span class="lock">🔒</span>
         <div class="ti">${t.split(' ')[0]}</div><div class="tn">${t.split(' ').slice(1).join(' ')}</div><div class="txp">${TIERS[i].xp} XP</div></div>`).join('')}</div>
     </div>
@@ -3602,7 +3592,7 @@ function renderProfile(){
       <button class="ghost" id="oddsTgl" style="margin-top:10px">${S.oddsMode ? 'Вернуть проценты (сейчас: коэффициенты)' : 'Коэффициенты вместо процентов (для олдов)'}</button>
       <button class="ghost" id="resetBtn" style="margin-top:10px">Сбросить демо и пройти онбординг заново</button>
     </div>
-    <div class="notice">Прототип «Импульс» v5 · все данные фейковые, баланс демонстрационный · целевой RTP демо-математики — 95%</div>`;
+    <div class="notice">Демо-версия: данные фейковые, баланс ненастоящий · 18+</div>`;
   sc.querySelectorAll('[data-claim]').forEach(b=>{
     b.onclick = ()=>{
       const i = +b.dataset.claim;
@@ -3617,6 +3607,7 @@ function renderProfile(){
   sc.querySelectorAll('[data-share]').forEach(b=>b.onclick = ()=>shareWin(b.dataset.share));
   const rn = $('#regNow');
   if(rn) rn.onclick = openRegSheet;
+  const pt = $('#portTop'); if(pt) pt.onclick = ()=>toast('В демо пополнение отключено', '', '🔒');
   const pr2 = $('#portReg');
   if(pr2) pr2.onclick = openRegSheet;
   const ci = $('#ciProf');
